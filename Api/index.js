@@ -3,8 +3,9 @@ import dotenv from "dotenv";
 dotenv.config();
 import connectDb from "./db/index.js";
 import userRouter from "./routes/user.routes.js";
+import authRouter from "./routes/auth.routes.js";
 const app = express();
-
+app.use(express.json());
 connectDb()
   .then(() => {
     app.on("error", (err) => {
@@ -19,4 +20,15 @@ connectDb()
     console.log("mongo db connection failed !!", err);
   });
 
+app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+
+// app.use((err, req, res, next) => {
+//   const statusCode = err.statusCode || 500;
+//   const message = err.message || "";
+//   return res.status(statusCode).json({
+//     success: false,
+//     statusCode,
+//     message,
+//   });
+// });
