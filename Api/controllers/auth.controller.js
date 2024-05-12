@@ -4,9 +4,7 @@ import { errorHandler } from "../utils/error.js";
 export const signup = async (req, res) => {
   const { userName, email, password } = req.body;
   //check if fields are empty
-  if (
-    [fullName, email, userName, password].some((field) => field?.trim() === "")
-  ) {
+  if ([email, userName, password].some((field) => field?.trim() === "")) {
     errorHandler(401, "all fields are supposed to be filled");
   }
 
