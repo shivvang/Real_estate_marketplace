@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailed,
+} from "../redux/user/userSlice";
 function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -15,7 +21,7 @@ function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signInStart());
       const res = await fetch("/api/auth/sigin", {
         method: "POST",
         headers: {
@@ -25,22 +31,16 @@ function SignIn() {
       });
       const data = await res.json();
       if (data.success === false) {
-        setError(data.message);
+        dispatch(signInFailed(data.message));
+        return;
       } else {
-        // Clearing  error state if there exist no error
-        setError("");
+        dispatch(signInSuccess(data));
+
         // Navigate to the home page
         navigate("/");
       }
     } catch (error) {
-      // Check if the error is a network error
-      if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setError("Network error. Please check your internet connection.");
-      } else {
-        setError(error.message);
-      }
-    } finally {
-      setLoading(false);
+      dispatch(signInFailed(error.message));
     }
   };
 
