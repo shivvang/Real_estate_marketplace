@@ -6,11 +6,14 @@ import {
   signInSuccess,
   signInFailed,
 } from "../redux/user/userSlice";
+import Oauth from "../components/Oauth";
+
 function SignIn() {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -22,7 +25,7 @@ function SignIn() {
     e.preventDefault();
     try {
       dispatch(signInStart());
-      const res = await fetch("/api/auth/sigin", {
+      const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,10 +33,11 @@ function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (data.success === false) {
+      console.log(data);
+      if (!data._id) {
         dispatch(signInFailed(data.message));
-        return;
       } else {
+        console.log("Dispatching signInSuccess");
         dispatch(signInSuccess(data));
 
         // Navigate to the home page
@@ -71,11 +75,13 @@ function SignIn() {
         >
           {loading ? "Loading..." : "Sign In"}
         </button>
+        <Oauth />
       </form>
       <div className="flex justify-center mt-5">
         <p className="text-gray-600">Dont have an Account?</p>
-        <Link to={"/signin"} className="ml-1">
-          <span className="text-blue-700 hover:underline">Sign in</span>
+        <Link to={"/signup"} className="ml-1">
+          {" "}
+          <span className="text-blue-700 hover:underline">Sign up</span>
         </Link>
       </div>
       {error && <p className="text-red-500 mt-5">{error}</p>}
