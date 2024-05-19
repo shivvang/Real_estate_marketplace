@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  background-color: #dbeafe; /* Soft pastel blue */
+  background-color: rgb(152, 251, 152);
 }
