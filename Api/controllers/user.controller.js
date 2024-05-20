@@ -2,12 +2,6 @@ import User from "../models/user.models.js";
 import { errorHandler } from "../utils/error.js";
 import bcryptJs from "bcryptjs";
 
-export const test = (req, res) => {
-  res.json({
-    message: "what is love baby dont hurt me ,dont hurt me no more",
-  });
-};
-
 export const updateUserInfo = async (req, res, next) => {
   if (req.user.id !== req.params.id)
     return next(
@@ -37,6 +31,20 @@ export const updateUserInfo = async (req, res, next) => {
     const { password, ...rest } = updateUser._doc;
 
     res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id)
+    return next(
+      errorHandler(401, "you cannot delete somebodies else's account")
+    );
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.clearCookie("access_token");
+    res.status(200).json("User has been deleted");
   } catch (error) {
     next(error);
   }
