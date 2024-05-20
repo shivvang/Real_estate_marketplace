@@ -2,21 +2,26 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { app } from "../firebase";
 import {
+  updatingUserbegin,
+  updateUserSuccess,
+  updateUserFailed,
+} from "../redux/user/userSlice";
+import { useDispatch } from "react-redux";
+import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
 function Profile() {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const FileRef = useRef(null);
   const [file, setFile] = useState(undefined);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState({});
-  console.log(FormData);
-  console.log(uploadPercentage);
-  console.log(fileError);
+  const dispatch = useDispatch();
+
   //firebase storage
   //allow read;
   //allow write: if
@@ -65,12 +70,42 @@ function Profile() {
       }
     );
   };
+
+  const handleInputChanges = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  let succesMessage = false;
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updatingUserbegin());
+      const res = await fetch(`/api/users/update/${currentUser._id}`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(updateUserFailed(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      succesMessage = true;
+    } catch (error) {
+      dispatch(updateUserFailed(error.message));
+    }
+  };
   return (
     <div className="bg-gray-900 p-6 max-w-lg mx-auto shadow-md rounded-lg mt-14">
       <h1 className="text-3xl font-semibold text-center text-white mb-6">
         Profile
       </h1>
-      <form className="flex flex-col gap-6">
+      <form className="flex flex-col gap-6" onSubmit={handleFormSubmit}>
         <div className="self-center mb-4">
           <input
             type="file"
@@ -106,21 +141,29 @@ function Profile() {
           placeholder="Username"
           id="userName"
           className="border border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+          defaultValue={currentUser.userName}
+          onChange={handleInputChanges}
         />
         <input
           type="text"
           placeholder="Email"
           id="email"
           className="border border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+          defaultValue={currentUser.email}
+          onChange={handleInputChanges}
         />
         <input
           type="password"
           placeholder="Password"
           id="password"
           className="border border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+          onChange={handleInputChanges}
         />
-        <button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg p-3 uppercase hover:opacity-95 transition duration-300 disabled:opacity-80">
-          Update
+        <button
+          disabled={loading}
+          className="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg p-3 uppercase hover:opacity-95 transition duration-300 disabled:opacity-80"
+        >
+          {loading ? "Loading..." : "Update"}
         </button>
       </form>
       <div className="flex justify-between mt-6">
@@ -131,6 +174,10 @@ function Profile() {
           Sign Out
         </span>
       </div>
+      <p className="text-red-700 mt-5 text-center">{error ? error : ""}</p>
+      <p className="text-green-700 mt-5 text-center">
+        {succesMessage ? "User details updated" : ""}
+      </p>
     </div>
   );
 }
