@@ -1,11 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 dotenv.config();
 import connectDb from "./db/index.js";
 import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 connectDb()
   .then(() => {
     app.on("error", (err) => {
