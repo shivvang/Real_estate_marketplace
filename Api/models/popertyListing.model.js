@@ -43,7 +43,7 @@ const propertyListingSchema = new mongoose.Schema(
       required: true,
     },
 
-    TransactionType: {
+    propertyType: {
       type: String,
       required: true,
     },
