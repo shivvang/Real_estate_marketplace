@@ -7,6 +7,7 @@ import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
+import PostProperty from "./pages/PostProperty";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/postproperty" element={<PostProperty />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,4 +1,5 @@
-import React, { Children, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { app } from "../firebase";
 import {
@@ -207,6 +208,12 @@ function Profile() {
         >
           {loading ? "Loading..." : "Update"}
         </button>
+        <Link
+          className="bg-gradient-to-r from-green-500 to-green-700 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 transition-opacity duration-200 ease-in-out shadow-md hover:shadow-lg"
+          to={"/postproperty"}
+        >
+          Post Property
+        </Link>
       </form>
       <div className="flex justify-between mt-6">
         <span
