@@ -233,6 +233,12 @@ function Profile() {
       <p className="text-green-700 mt-5 text-center">
         {succesMessage ? "User details updated" : ""}
       </p>
+      <Link
+        to="/PropertyList"
+        className="bg-green-700 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 hover:shadow-md transition duration-300 ease-in-out flex justify-center"
+      >
+        Show User Properties
+      </Link>
     </div>
   );
 }

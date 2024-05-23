@@ -29,8 +29,8 @@ function NavBar() {
             </Link>
           </li>
           <li className="text-sm">
-            <Link to="/about" className="hover:text-blue-500">
-              About
+            <Link to="/PropertyList" className="hover:text-blue-500">
+              PropertyList
             </Link>
           </li>
           <Link to="/profile">

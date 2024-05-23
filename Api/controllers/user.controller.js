@@ -1,3 +1,4 @@
+import PropertyListing from "../models/popertyListing.model.js";
 import User from "../models/user.models.js";
 import { errorHandler } from "../utils/error.js";
 import bcryptJs from "bcryptjs";
@@ -47,5 +48,20 @@ export const deleteUser = async (req, res, next) => {
     res.status(200).json("User has been deleted");
   } catch (error) {
     next(error);
+  }
+};
+
+export const getUserCreatedProperty = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, "not a valid user who posted property"));
+  } else {
+    try {
+      const properties = await PropertyListing.find({
+        userRefs: req.params.id,
+      });
+      res.status(200).json(properties);
+    } catch (error) {
+      next(error);
+    }
   }
 };

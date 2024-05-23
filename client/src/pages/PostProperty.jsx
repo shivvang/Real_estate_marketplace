@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 function PostProperty() {
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
-    imageUrls: [],
+    propertyImageUrls: [],
     name: "",
     description: "",
     address: "",
@@ -30,6 +30,7 @@ function PostProperty() {
   const [formsubmissionError, setFormSubmissionError] = useState(false);
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
+
   const navigate = useNavigate();
   console.log(formData);
   const handleImageSubmit = () => {
@@ -44,7 +45,7 @@ function PostProperty() {
         .then((urls) => {
           setFormData({
             ...formData,
-            imageUrls: formData.imageUrls.concat(urls),
+            propertyImageUrls: formData.propertyImageUrls.concat(urls),
           });
           setImageUploadError(false);
           setUploading(false);
@@ -85,7 +86,9 @@ function PostProperty() {
   const handleRemoveImageUploaded = (index) => {
     setFormData({
       ...formData,
-      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
+      propertyImageUrls: formData.propertyImageUrls.filter(
+        (_, i) => i !== index
+      ),
     });
   };
   const handleFormSubmission = (e) => {
@@ -119,7 +122,6 @@ function PostProperty() {
   };
 
   const onfromSubmission = async (e) => {
-    console.log(currentUser, "hai kya");
     e.preventDefault();
     try {
       setSubmissionLoading(true);
@@ -138,7 +140,8 @@ function PostProperty() {
       if (data.success === false) {
         setFormSubmissionError(false);
       }
-      navigate(`/postproperty/${data._id}`);
+      //work in progesss
+      //navigate(`/postproperty/${data._id}`);
     } catch (error) {
       setFormSubmissionError(error.message);
       setSubmissionLoading(false);
@@ -315,8 +318,8 @@ function PostProperty() {
           <p className="text-red-700 text-sm mt-2">
             {imageUploadError ? "Error occurred while uploading" : ""}
           </p>
-          {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((url, index) => (
+          {formData.propertyImageUrls.length > 0 &&
+            formData.propertyImageUrls.map((url, index) => (
               <div
                 key={index}
                 className="flex justify-between p-3 border border-gray-300 rounded-lg items-center mb-2 shadow-md bg-white"
