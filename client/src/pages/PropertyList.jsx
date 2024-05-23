@@ -31,6 +31,24 @@ function PropertyList() {
     }
   }, [currentUser]);
 
+  const handlePropetyDeletion = async (propertyID) => {
+    try {
+      const res = await fetch(`/api/propertyListing/delete/${propertyID}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setShowuserproperties((prev) =>
+        prev.filter((properties) => properties._id !== propertyID)
+      );
+    } catch (error) {
+      console.log(error.name);
+    }
+  };
   return (
     <div className="p-5 max-w-7xl mx-auto">
       <h1 className="text-3xl font-semibold text-center mb-6 text-primary">
@@ -81,7 +99,10 @@ function PropertyList() {
                   </p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <button className="text-red-600 uppercase hover:underline mb-2">
+                  <button
+                    onClick={() => handlePropetyDeletion(property._id)}
+                    className="text-red-600 uppercase hover:underline mb-2"
+                  >
                     Delete
                   </button>
                   <button className="text-green-600 uppercase hover:underline">
