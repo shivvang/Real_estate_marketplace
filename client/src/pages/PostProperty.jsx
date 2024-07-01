@@ -140,8 +140,8 @@ function PostProperty() {
       if (data.success === false) {
         setFormSubmissionError(false);
       }
-      //work in progesss
-      //navigate(`/postproperty/${data._id}`);
+
+      navigate(`/postproperty/${data._id}`);
     } catch (error) {
       setFormSubmissionError(error.message);
       setSubmissionLoading(false);
