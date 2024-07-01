@@ -8,6 +8,7 @@ import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
 import PostProperty from "./pages/PostProperty";
 import PropertyList from "./pages/PropertyList";
+import UpdateProperty from "./pages/UpdateProperty";
 
 function App() {
   return (
@@ -22,6 +23,10 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/postproperty" element={<PostProperty />} />
           <Route path="/PropertyList" element={<PropertyList />} />
+          <Route
+            path="/updateproperty/:propertyid"
+            element={<UpdateProperty />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>

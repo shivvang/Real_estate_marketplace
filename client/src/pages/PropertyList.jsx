@@ -105,9 +105,11 @@ function PropertyList() {
                   >
                     Delete
                   </button>
-                  <button className="text-green-600 uppercase hover:underline">
-                    Edit
-                  </button>
+                  <Link to={`/updateproperty/${property._id}`}>
+                    <button className="text-green-600 uppercase hover:underline">
+                      Edit
+                    </button>
+                  </Link>
                 </div>
               </div>
             ))

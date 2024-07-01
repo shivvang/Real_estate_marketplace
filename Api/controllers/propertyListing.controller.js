@@ -32,3 +32,42 @@ export const deleteProperties = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateProperties = async (req, res, next) => {
+  const propertyalreadyexisting = await PropertyListing.findById(req.params.id);
+
+  if (!propertyalreadyexisting) {
+    return next(errorHandler(404, "there does not exist a property like this"));
+  }
+
+  if (req.user.id !== propertyalreadyexisting.userRefs) {
+    return next(
+      errorHandler(
+        401,
+        "cannot update this cause youre not the one who made this"
+      )
+    );
+  }
+  try {
+    const updatedProperty = await PropertyListing.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updatedProperty);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProperty = async (req, res, next) => {
+  try {
+    const property = await PropertyListing.findById(req.params.id);
+    if (!property) {
+      return next(errorHandler(404, "property not found"));
+    }
+    res.status(200).json(property);
+  } catch (error) {
+    next(error);
+  }
+};
