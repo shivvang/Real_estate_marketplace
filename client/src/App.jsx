@@ -9,6 +9,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import PostProperty from "./pages/PostProperty";
 import PropertyList from "./pages/PropertyList";
 import UpdateProperty from "./pages/UpdateProperty";
+import PropertyView from "./pages/PropertyView";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/propertyView/:propertyId" element={<PropertyView />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
