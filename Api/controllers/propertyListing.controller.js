@@ -71,3 +71,50 @@ export const getProperty = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getPropertiesData = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 9;
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    let furnished = req.query.furnished;
+
+    //MongoDB query. The $in operator is used to match values of a field against an array of possible values
+    if (furnished === undefined || furnished === false) {
+      furnished = { $in: [false, true] };
+    }
+
+    let parking = req.query.parking;
+
+    if (parking === undefined || parking === false) {
+      parking = { $in: [false, true] };
+    }
+
+    let propertyType = req.query.propertyTyped;
+
+    if (propertyType === undefined || propertyType === "all") {
+      propertyType = { $in: ["sale", "rent"] };
+    }
+
+    const searchTerm = req.query.searchTerm || " ";
+
+    const sort = req.query.sort || "createdAt";
+
+    const order = req.query.order || "desc";
+
+    // $regex MongoDB operator that allows you to perform regular expression (regex) searches. Regular expressions are a powerful way to search for patterns in strings.
+    //$options: "i":This specifies options for the regex search. The "i" option stands for case-insensitive matching. It means that the search will match the pattern regardless of whether the characters are in uppercase or lowercase.
+    const dataReceivied = await PropertyListing.find({
+      name: { $regex: searchTerm, $options: "i" },
+      furnished,
+      parking,
+      propertyType,
+    })
+      .sort({ [sort]: order })
+      .limit(limit)
+      .skip(startIndex);
+
+    return res.status(200).json(dataReceivied);
+  } catch (error) {
+    next(error);
+  }
+};

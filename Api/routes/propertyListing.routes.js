@@ -1,6 +1,7 @@
 import express from "express";
 import {
   deleteProperties,
+  getPropertiesData,
   getProperty,
   postProperty,
   updateProperties,
@@ -12,5 +13,6 @@ router.post("/postProperty", verifyToken, postProperty);
 router.delete("/delete/:id", verifyToken, deleteProperties);
 router.post("/update/:id", verifyToken, updateProperties);
 router.get("/getProperty/:id", getProperty);
+router.get("/get", getPropertiesData);
 
 export default router;
