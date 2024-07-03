@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Swipercore from "swiper";
 import { Navigation } from "swiper/modules";
@@ -7,13 +7,14 @@ import {
   FaBath,
   FaBed,
   FaChair,
-  FaMapMarkedAlt,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
 } from "react-icons/fa";
 
 import "swiper/css/bundle";
+import { useSelector } from "react-redux";
+import ContactOwner from "../components/ContactOwner";
 
 function PropertyView() {
   Swipercore.use([Navigation]);
@@ -21,7 +22,9 @@ function PropertyView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [contactOwner, setContactOwner] = useState(false);
   const params = useParams();
+  const { currentUser } = useSelector((state) => state.user);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -45,6 +48,7 @@ function PropertyView() {
     fetchData();
   }, [params.propertyId]);
   console.log(propertyData);
+  console.log(currentUser._id);
   return (
     <main>
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
@@ -96,11 +100,11 @@ function PropertyView() {
               {propertyData.propertyType === "rent" && " / month"}
             </p>
             <p className="flex items-center mt-6 gap-2 text-slate-600  text-sm">
-              <FaMapMarkerAlt className="text-green-700" />
+              <FaMapMarkerAlt className="text-gray-900" />
               {propertyData.address}
             </p>
             <div>
-              <p className="bg-red-900 w-full max-w-[200px] text-white text-center p-1 rounded-md">
+              <p className="bg-blue-600 w-full max-w-[200px] text-white text-center p-1 rounded-md">
                 {propertyData.propertyType === "rent" ? "for rent" : "for sale"}
               </p>
             </div>
@@ -109,26 +113,37 @@ function PropertyView() {
             </p>
             <ul className="text-green-900 font-semibold text-sm flex flex-wrap items-center gap-4 sm:gap-6">
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaBed className="text-lg" />
+                <FaBed className="text-lg text-gray-900" />
                 {propertyData.beds > 1
                   ? `${propertyData.beds} beds`
                   : `${propertyData.beds} bed`}
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaBath className="text-lg" />
+                <FaBath className="text-lg text-gray-900" />
                 {propertyData.baths > 1
                   ? `${propertyData.baths} beds`
                   : `${propertyData.baths} bed`}
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaParking className="text-lg" />
+                <FaParking className="text-lg text-gray-900" />
                 {propertyData.parking ? "parking" : "No parking"}
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaChair className="text-lg" />
+                <FaChair className="text-lg text-gray-900" />
                 {propertyData.furnished ? "furnished" : "Unfurnished"}
               </li>
             </ul>
+            {currentUser &&
+              propertyData.userRefs !== currentUser._id &&
+              !contactOwner && (
+                <button
+                  onClick={() => setContactOwner(true)}
+                  className="bg-blue-600 text-white rounded-lg uppercase hover:opacity-95 p-3"
+                >
+                  Contact Owner
+                </button>
+              )}
+            {contactOwner && <ContactOwner propertyData={propertyData} />}
           </div>
         </div>
       )}
