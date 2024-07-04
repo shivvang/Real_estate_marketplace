@@ -10,6 +10,7 @@ import PostProperty from "./pages/PostProperty";
 import PropertyList from "./pages/PropertyList";
 import UpdateProperty from "./pages/UpdateProperty";
 import PropertyView from "./pages/PropertyView";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/propertyView/:propertyId" element={<PropertyView />} />
-
+        <Route path="/search" element={<SearchPage />} />
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/postproperty" element={<PostProperty />} />
