@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 function NavBar() {
-  const [serarchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const handleFormSubmission = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set("serarchTerm", serarchTerm);
+    urlParams.set("searchTerm", searchTerm);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   };
@@ -34,7 +34,7 @@ function NavBar() {
             type="text"
             placeholder="Search"
             className="px-4 py-2 rounded-l-lg focus:outline-none focus:ring focus:border-blue-300 bg-gray-800 text-white"
-            value={serarchTerm}
+            value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button className="bg-blue-600 px-4 py-2 rounded-r-lg flex items-center">

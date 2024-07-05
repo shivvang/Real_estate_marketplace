@@ -97,7 +97,7 @@ export const getPropertiesData = async (req, res, next) => {
 
     const searchTerm = req.query.searchTerm || " ";
 
-    const sort = req.query.sort || "createdAt";
+    const sort = req.query.sort || "created_At";
 
     const order = req.query.order || "desc";
 
