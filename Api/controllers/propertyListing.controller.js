@@ -76,56 +76,37 @@ export const getPropertiesData = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 9;
     const startIndex = parseInt(req.query.startIndex) || 0;
-    let furnished = req.query.furnished;
 
-    //MongoDB query. The $in operator is used to match values of a field against an array of possible values
-    if (furnished === undefined || furnished === false) {
-      furnished = { $in: [false, true] };
-    } else {
-      furnished = furnished === "true";
+    let query = {};
+
+    if (req.query.furnished !== undefined && req.query.furnished !== "false") {
+      query.furnished = req.query.furnished === "true";
     }
 
-    let parking = req.query.Parking;
-
-    if (parking === undefined || parking === false) {
-      parking = { $in: [false, true] };
-    } else {
-      parking = parking === "true";
+    if (req.query.Parking !== undefined && req.query.Parking !== "false") {
+      query.parking = req.query.Parking === "true";
     }
 
     let propertyType = req.query.propertyType;
 
     if (propertyType === undefined || propertyType === "all") {
       propertyType = { $in: ["sale", "rent"] };
+    } else {
+      query.propertyType = propertyType;
     }
 
-    const searchTerm = req.query.searchTerm || " ";
-
+    const searchTerm = req.query.searchTerm || "";
     const sort = req.query.sort || "createdAt";
-
     const order = req.query.order || "desc";
 
-    // Log the filters to debug
-    console.log({
-      name: { $regex: searchTerm, $options: "i" },
-      furnished,
-      parking,
-      propertyType,
-    });
+    query.name = { $regex: searchTerm, $options: "i" };
 
-    // $regex MongoDB operator that allows you to perform regular expression (regex) searches. Regular expressions are a powerful way to search for patterns in strings.
-    //$options: "i":This specifies options for the regex search. The "i" option stands for case-insensitive matching. It means that the search will match the pattern regardless of whether the characters are in uppercase or lowercase.
-    const dataReceivied = await PropertyListing.find({
-      name: { $regex: searchTerm, $options: "i" },
-      furnished,
-      parking,
-      propertyType,
-    })
+    const dataReceived = await PropertyListing.find(query)
       .sort({ [sort]: order })
       .limit(limit)
       .skip(startIndex);
 
-    return res.status(200).json(dataReceivied);
+    return res.status(200).json(dataReceived);
   } catch (error) {
     next(error);
   }
