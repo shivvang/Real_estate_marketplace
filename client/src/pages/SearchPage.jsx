@@ -15,7 +15,7 @@ function SearchPage() {
 
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [showMore, setShowMore] = useState(false);
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchTermFromCurrentUrl = urlParams.get("searchTerm");
@@ -46,10 +46,15 @@ function SearchPage() {
     const fetchResults = async () => {
       try {
         setLoading(true);
+        setShowMore(false);
         const searchQuery = urlParams.toString();
         const res = await fetch(`/api/propertyListing/get?${searchQuery}`);
         const data = await res.json();
-        console.log("data received via api call", data);
+        if (data.length > 8) {
+          setShowMore(true);
+        } else {
+          setShowMore(false);
+        }
         if (!data) {
           console.log("some error has occurred");
           setLoading(false);
@@ -63,8 +68,6 @@ function SearchPage() {
     };
     fetchResults();
   }, [window.location.search]);
-
-  console.log("search result", searchResults);
 
   const handlingChangesInInput = (e) => {
     const { id, value, checked } = e.target;
@@ -104,7 +107,19 @@ function SearchPage() {
     navigate(`/search?${searchQuery}`);
   };
 
-  console.log("search filters", searchFilters);
+  const onShowMoreClick = async () => {
+    const NoOfestates = searchResults.length;
+    const startIndex = NoOfestates;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/propertyListing/get?${searchQuery}`);
+    const data = await res.json();
+    if (data.length < 9) {
+      setShowMore(false);
+    }
+    setSearchResults(...searchResults, ...data);
+  };
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -222,6 +237,14 @@ function SearchPage() {
                 propertyData={propertyData}
               />
             ))}
+          {showMore && (
+            <button
+              onClick={onShowMoreClick}
+              className="text-green-700 hover:underline p-7 text-center w-full"
+            >
+              Show More
+            </button>
+          )}
         </div>
       </div>
     </div>
