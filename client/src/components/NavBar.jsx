@@ -26,7 +26,7 @@ function NavBar() {
     <header className="bg-gray-900 text-white">
       <div className="container mx-auto flex justify-between items-center py-4">
         <Link to="/" className="text-2xl font-bold tracking-wider">
-          Housing<span className="text-gray-400">.Com</span>
+          Home<span className="text-gray-400">Quest</span>
         </Link>
 
         <form onSubmit={handleFormSubmission} className="flex items-center">

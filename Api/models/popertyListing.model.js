@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 
 const propertyListingSchema = new mongoose.Schema(
   {
-    name: {
+    propertyType: {
+      type: String,
+      enum: ["residential", "commercial", "rawLand"],
+      required: true,
+    },
+    propertyTitle: {
       type: String,
       required: true,
     },
@@ -10,21 +15,43 @@ const propertyListingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    address: {
+    location: {
       type: String,
       required: true,
     },
+    landmark: {
+      type: String,
+      required: true,
+    },
+    transactionType: {
+      type: String,
+      enum: ["sell", "rent", "pg"],
+      required: true,
+    },
+
     priceBreakUp: {
       type: Number,
       required: true,
     },
+    negotiable: {
+      type: Boolean,
+      required: true,
+    },
+
+    maintenanceCharge: {
+      type: Number,
+    },
     baths: {
       type: Number,
       required: true,
+      min: 1,
+      max: 12,
     },
     beds: {
       type: Number,
       required: true,
+      min: 1,
+      max: 12,
     },
     carpetArea: {
       type: Number,
@@ -42,14 +69,51 @@ const propertyListingSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-
-    propertyType: {
+    propertyStatus: {
       type: String,
       required: true,
     },
     propertyImageUrls: {
       type: Array,
       required: true,
+    },
+    ownershipType: {
+      type: String,
+      required: true,
+    },
+    amenities: {
+      powerBackup: {
+        type: Boolean,
+        default: true,
+      },
+      lift: {
+        type: Boolean,
+        default: true,
+      },
+      security: {
+        type: Boolean,
+        default: false,
+      },
+      waterSupply: {
+        type: Boolean,
+        default: true,
+      },
+      gymnasium: {
+        type: Boolean,
+        default: false,
+      },
+      swimmingPool: {
+        type: Boolean,
+        default: false,
+      },
+      clubhouse: {
+        type: Boolean,
+        default: false,
+      },
+      garden: {
+        type: Boolean,
+        default: false,
+      },
     },
     userRefs: {
       type: String,
