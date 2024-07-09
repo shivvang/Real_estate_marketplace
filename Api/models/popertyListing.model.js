@@ -57,18 +57,7 @@ const propertyListingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    furnished: {
-      type: Boolean,
-      required: true,
-    },
-    balcony: {
-      type: Boolean,
-      required: true,
-    },
-    parking: {
-      type: Boolean,
-      required: true,
-    },
+
     propertyStatus: {
       type: String,
       required: true,
@@ -80,6 +69,20 @@ const propertyListingSchema = new mongoose.Schema(
     ownershipType: {
       type: String,
       required: true,
+    },
+    addAreaDetails: {
+      furnished: {
+        type: Boolean,
+        default: true,
+      },
+      balcony: {
+        type: Boolean,
+        default: true,
+      },
+      parking: {
+        type: Boolean,
+        default: true,
+      },
     },
     amenities: {
       powerBackup: {

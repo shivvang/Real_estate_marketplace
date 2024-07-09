@@ -6,11 +6,12 @@ import SignIn from "./pages/SignIn";
 import Profile from "./pages/Profile";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
-import PostProperty from "./pages/PostProperty";
+
 import PropertyList from "./pages/PropertyList";
 import UpdateProperty from "./pages/UpdateProperty";
 import PropertyView from "./pages/PropertyView";
 import SearchPage from "./pages/SearchPage";
+import PostProperty from "./pages/PostProperty/PostProperty";
 
 function App() {
   return (

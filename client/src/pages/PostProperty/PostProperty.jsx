@@ -8,24 +8,37 @@ import {
 } from "firebase/storage";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import NumberInput from "./NumberInput";
+import CheckboxGroup from "./CheckboxGroup";
+import RadioGroup from "./RadioGroup";
+import TextInput from "./TextInput";
+import TextArea from "./TextArea";
+import FileInput from "./FileInput";
 
 function PostProperty() {
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
-    name: "",
+    propertyTitle: "",
     description: "",
-    address: "",
+    location: "",
+    landmark: "",
     transactionType: "sell",
     propertyType: "residential",
     ownershipType: "ownedbyme",
-    parking: false,
-    furnished: false,
-    balcony: false,
+
     baths: 1,
     beds: 1,
     priceBreakUp: 0,
+    maintenanceCharge: 0,
+    negotiable: false,
     carpetArea: 0,
     propertyImageUrls: [],
+    propertyStatus: "",
+    addAreaDetails: {
+      parking: false,
+      furnished: false,
+      balcony: false,
+    },
     amenities: {
       powerBackup: true,
       lift: false,
@@ -36,6 +49,7 @@ function PostProperty() {
       clubhouse: false,
       garden: false,
     },
+    userRefs: "",
   });
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -103,42 +117,34 @@ function PostProperty() {
       ),
     });
   };
+
   const handleFormSubmission = (e) => {
-    if (
-      e.target.id === "sell" ||
-      e.target.id === "rent" ||
-      e.target.id === "pg"
-    ) {
-      setFormData({
-        ...formData,
-        transactionType: e.target.id,
-      });
-    }
+    const { name, value, type, checked } = e.target;
 
-    if (e.target.id === "residental" || e.target.id === "commercial") {
-      setFormData({ ...formData, propertyType: e.target.id });
-    }
+    if (type === "checkbox") {
+      const [field, subfield] = name.split(".");
 
-    if (e.target.id === "ownedbyme" || e.target.id === "brooker") {
-      setFormData({ ...formData, ownershipType: e.target.id });
-    }
-
-    if (e.target.id === "parking" || e.target.id === "furnished") {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.checked,
-      });
-    }
-    if (
-      e.target.type === "number" ||
-      e.target.type === "text" ||
-      e.target.type === "textarea"
-    ) {
-      setFormData({
-        ...formData,
-        //bracket is added to get the variable
-        [e.target.id]: e.target.value,
-      });
+      if (subfield) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [field]: {
+            ...prevData[field],
+            [subfield]: checked,
+          },
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: checked,
+        }));
+      }
+    } else if (type === "radio") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    } else {
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
 
@@ -169,7 +175,152 @@ function PostProperty() {
       setSubmissionLoading(false);
     }
   };
-  return <div></div>;
+  return (
+    <main className="p-6 max-w-4xl mx-auto bg-gray-900 rounded-lg shadow-md mt-6">
+      <h1 className="text-4xl font-semibold text-center text-white my-7">
+        Begin Posting Your Property
+      </h1>
+      <form
+        onSubmit={handleFormSubmission}
+        className="flex flex-col sm:flex-row gap-6"
+      >
+        <div className="flex flex-col gap-4 flex-1">
+          <TextInput
+            placeholder="Property Title"
+            name="propertyTitle"
+            value={formData.propertyTitle}
+            onChange={handleFormSubmission}
+          />
+          <TextArea
+            placeholder="Description"
+            name="description"
+            value={formData.description}
+            onChange={handleFormSubmission}
+          />
+          <TextInput
+            placeholder="Location of the Property"
+            name="location"
+            value={formData.location}
+            onChange={handleFormSubmission}
+          />
+          <TextInput
+            placeholder="Land Mark of the Property"
+            name="landmark"
+            value={formData.landmark}
+            onChange={handleFormSubmission}
+          />
+          <RadioGroup
+            label="You're Looking To"
+            name="transactionType"
+            options={[
+              { label: "Sell", value: "sell" },
+              { label: "Rent/Lease", value: "rent" },
+              { label: "PG", value: "pg" },
+            ]}
+            selectedOption={formData.transactionType}
+            onChange={handleFormSubmission}
+          />
+          <RadioGroup
+            label="And it's a ...."
+            name="propertyType"
+            options={[
+              { label: "Residential", value: "residential" },
+              {
+                label: "Commercial",
+                value: "commercial",
+                disabled: formData.transactionType === "pg",
+              },
+            ]}
+            selectedOption={formData.propertyType}
+            onChange={handleFormSubmission}
+          />
+          <RadioGroup
+            label="You Are..."
+            name="ownershipType"
+            options={[
+              { label: "Owned By Me", value: "ownedbyme" },
+              { label: "Broker", value: "broker" },
+            ]}
+            selectedOption={formData.ownershipType}
+            onChange={handleFormSubmission}
+          />
+          <CheckboxGroup
+            label="Add Area Details"
+            name="addAreaDetails"
+            options={[
+              { label: "Balcony", value: "balcony" },
+              { label: "Furnished", value: "furnished" },
+              { label: "Parking", value: "parking" },
+            ]}
+            selectedOptions={formData.addAreaDetails}
+            onChange={handleFormSubmission}
+          />
+          <CheckboxGroup
+            label="Amenities"
+            name="amenities"
+            options={[
+              { label: "Power Backup", value: "powerBackup" },
+              { label: "Lift", value: "lift" },
+              { label: "Security", value: "security" },
+              { label: "Water Supply", value: "waterSupply" },
+              { label: "Gymnasium", value: "gymnasium" },
+              { label: "Swimming Pool", value: "swimmingPool" },
+              { label: "Clubhouse", value: "clubhouse" },
+              { label: "Garden", value: "garden" },
+            ]}
+            selectedOptions={formData.amenities}
+            onChange={handleFormSubmission}
+          />
+          <div className="flex flex-wrap gap-6">
+            <NumberInput
+              label="Baths"
+              name="baths"
+              value={formData.baths}
+              onChange={handleFormSubmission}
+              min="1"
+              max="12"
+            />
+            <NumberInput
+              label="Beds"
+              name="beds"
+              value={formData.beds}
+              onChange={handleFormSubmission}
+              min="1"
+              max="12"
+            />
+            <NumberInput
+              label="Price Break-Up"
+              name="priceBreakUp"
+              value={formData.priceBreakUp}
+              onChange={handleFormSubmission}
+              min="0"
+            />
+            <NumberInput
+              label="Carpet Area"
+              name="carpetArea"
+              value={formData.carpetArea}
+              onChange={handleFormSubmission}
+              min="0"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-6 flex-1">
+          <FileInput
+            label="Upload Property Images"
+            name="propertyImageUrls"
+            onChange={(e) =>
+              setFormData((prevData) => ({
+                ...prevData,
+                propertyImageUrls: Array.from(e.target.files).map((file) =>
+                  URL.createObjectURL(file)
+                ),
+              }))
+            }
+          />
+        </div>
+      </form>
+    </main>
+  );
 }
 
 export default PostProperty;
