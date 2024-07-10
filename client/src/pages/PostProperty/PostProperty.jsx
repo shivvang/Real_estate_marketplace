@@ -1,11 +1,8 @@
-import React, { useState } from "react";
-import { app } from "../../firebase";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
+// eslint-disable-next-line no-unused-vars
+import React, { useState, useRef } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import NumberInput from "./NumberInput";
@@ -13,10 +10,13 @@ import CheckboxGroup from "./CheckboxGroup";
 import RadioGroup from "./RadioGroup";
 import TextInput from "./TextInput";
 import TextArea from "./TextArea";
-import FileInput from "./FileInput";
+import ImageUpload from "./ImageUpload";
+import DisplayUploadedImages from "./DisplayUploadedImages";
+import validateFormData from "./validateFormData ";
 
 function PostProperty() {
-  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const formRef = useRef();
   const [formData, setFormData] = useState({
     propertyTitle: "",
     description: "",
@@ -30,14 +30,19 @@ function PostProperty() {
     beds: 1,
     priceBreakUp: 0,
     maintenanceCharge: 0,
-    negotiable: false,
+
     carpetArea: 0,
     propertyImageUrls: [],
-    propertyStatus: "",
+    propertyStatus: "readyToMoveIn",
     addAreaDetails: {
       parking: false,
       furnished: false,
       balcony: false,
+    },
+    accommodationDuration: 0,
+    priceDetails: {
+      isNegotiable: false,
+      additionalCharges: false,
     },
     amenities: {
       powerBackup: true,
@@ -51,79 +56,18 @@ function PostProperty() {
     },
     userRefs: "",
   });
-  const [imageUploadError, setImageUploadError] = useState(false);
-  const [uploading, setUploading] = useState(false);
+
   const [formsubmissionError, setFormSubmissionError] = useState(false);
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
 
-  const handleImageSubmit = () => {
-    if (files.length > 0 && files.length < 8) {
-      setUploading(true);
-      setImageUploadError(false);
-      const promises = [];
-      for (let i = 0; i < files.length; i++) {
-        promises.push(storeImages(files[i]));
-      }
-      Promise.all(promises)
-        .then((urls) => {
-          setFormData({
-            ...formData,
-            propertyImageUrls: formData.propertyImageUrls.concat(urls),
-          });
-          setImageUploadError(false);
-          setUploading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setImageUploadError(true);
-          setUploading(false);
-        });
-    }
-  };
-
-  const storeImages = async (file) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
-      const fileName = new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(Math.round(progress));
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          //returns the download URL for the given StorageReference.
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        }
-      );
-    });
-  };
-  const handleRemoveImageUploaded = (index) => {
-    setFormData({
-      ...formData,
-      propertyImageUrls: formData.propertyImageUrls.filter(
-        (_, i) => i !== index
-      ),
-    });
-  };
-
   const handleFormSubmission = (e) => {
     const { name, value, type, checked } = e.target;
+    const [field, subfield] = name.split(".");
 
     if (type === "checkbox") {
-      const [field, subfield] = name.split(".");
-
       if (subfield) {
         setFormData((prevData) => ({
           ...prevData,
@@ -139,18 +83,38 @@ function PostProperty() {
         }));
       }
     } else if (type === "radio") {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
+      if (subfield) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [field]: {
+            ...prevData[field],
+            [subfield]: value,
+          },
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
     } else {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
 
   console.log("formData", formData);
-  const onfromSubmission = async (e) => {
+  const onFormSubmission = async (e) => {
     e.preventDefault();
+    // Validate form data
+    const errors = validateFormData(formData);
+    if (Object.keys(errors).length > 0) {
+      // Displaying errors using toast notifications
+      Object.values(errors).forEach((error) => {
+        toast.error(error);
+      });
+      return;
+    }
+
     try {
       setSubmissionLoading(true);
       setFormSubmissionError(false);
@@ -163,6 +127,7 @@ function PostProperty() {
       });
 
       const data = await res.json();
+      console.log("data received from backend", data);
       setSubmissionLoading(false);
 
       if (data.success === false) {
@@ -181,36 +146,49 @@ function PostProperty() {
         Begin Posting Your Property
       </h1>
       <form
-        onSubmit={handleFormSubmission}
-        className="flex flex-col sm:flex-row gap-6"
+        id="propertyForm"
+        onSubmit={onFormSubmission}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        ref={formRef}
       >
-        <div className="flex flex-col gap-4 flex-1">
+        {/* Left Column */}
+        <div className="flex flex-col gap-4">
           <TextInput
-            placeholder="Property Title"
+            label="Property Title"
             name="propertyTitle"
+            placeholder="Enter Property Title"
             value={formData.propertyTitle}
             onChange={handleFormSubmission}
           />
           <TextArea
-            placeholder="Description"
+            label="Description"
             name="description"
+            placeholder={
+              formData.propertyType === "rawLand"
+                ? "Please provide a detailed description of your land, including its features, location advantages, potential uses, and any other relevant details. Please specify the size of the land in acres."
+                : "Describe your property..."
+            }
             value={formData.description}
             onChange={handleFormSubmission}
           />
-          <TextInput
-            placeholder="Location of the Property"
-            name="location"
-            value={formData.location}
-            onChange={handleFormSubmission}
-          />
-          <TextInput
-            placeholder="Land Mark of the Property"
-            name="landmark"
-            value={formData.landmark}
-            onChange={handleFormSubmission}
-          />
+          <div className="flex gap-4">
+            <TextInput
+              label="Location"
+              name="location"
+              placeholder="Enter Location"
+              value={formData.location}
+              onChange={handleFormSubmission}
+            />
+            <TextInput
+              label="Landmark"
+              name="landmark"
+              placeholder="Enter Landmark"
+              value={formData.landmark}
+              onChange={handleFormSubmission}
+            />
+          </div>
           <RadioGroup
-            label="You're Looking To"
+            label="Transaction Type"
             name="transactionType"
             options={[
               { label: "Sell", value: "sell" },
@@ -221,21 +199,40 @@ function PostProperty() {
             onChange={handleFormSubmission}
           />
           <RadioGroup
-            label="And it's a ...."
+            label="Property Type"
             name="propertyType"
             options={[
               { label: "Residential", value: "residential" },
               {
                 label: "Commercial",
                 value: "commercial",
-                disabled: formData.transactionType === "pg",
+              },
+              {
+                label: "Raw Plot",
+                value: "rawLand",
+                disabled:
+                  formData.transactionType === "pg" ||
+                  formData.transactionType === "rent",
               },
             ]}
             selectedOption={formData.propertyType}
             onChange={handleFormSubmission}
           />
+          {formData.propertyType !== "rawLand" && (
+            <RadioGroup
+              label="Property Status"
+              name="propertyStatus"
+              options={[
+                { label: "Ready to Move In", value: "readyToMoveIn" },
+                { label: "Under Construction", value: "underConstruction" },
+                { label: "Upcoming", value: "upcoming" },
+              ]}
+              selectedOption={formData.propertyStatus}
+              onChange={handleFormSubmission}
+            />
+          )}
           <RadioGroup
-            label="You Are..."
+            label="Ownership Type"
             name="ownershipType"
             options={[
               { label: "Owned By Me", value: "ownedbyme" },
@@ -244,81 +241,152 @@ function PostProperty() {
             selectedOption={formData.ownershipType}
             onChange={handleFormSubmission}
           />
+        </div>
+        {/* Right Column */}
+        <div className="flex flex-col gap-4">
           <CheckboxGroup
-            label="Add Area Details"
-            name="addAreaDetails"
+            label="Price Details"
+            name="priceDetails"
             options={[
-              { label: "Balcony", value: "balcony" },
-              { label: "Furnished", value: "furnished" },
-              { label: "Parking", value: "parking" },
+              { label: "Negotiable Price", value: "isNegotiable" },
+              {
+                label: "Additional Charges",
+                value: "additionalCharges",
+                disabled: formData.propertyType === "rawLand",
+              },
             ]}
-            selectedOptions={formData.addAreaDetails}
+            selectedOptions={formData.priceDetails}
             onChange={handleFormSubmission}
           />
-          <CheckboxGroup
-            label="Amenities"
-            name="amenities"
-            options={[
-              { label: "Power Backup", value: "powerBackup" },
-              { label: "Lift", value: "lift" },
-              { label: "Security", value: "security" },
-              { label: "Water Supply", value: "waterSupply" },
-              { label: "Gymnasium", value: "gymnasium" },
-              { label: "Swimming Pool", value: "swimmingPool" },
-              { label: "Clubhouse", value: "clubhouse" },
-              { label: "Garden", value: "garden" },
-            ]}
-            selectedOptions={formData.amenities}
-            onChange={handleFormSubmission}
-          />
-          <div className="flex flex-wrap gap-6">
-            <NumberInput
-              label="Baths"
-              name="baths"
-              value={formData.baths}
+          {formData.propertyType !== "rawLand" && (
+            <CheckboxGroup
+              label="Area Details"
+              name="addAreaDetails"
+              options={[
+                { label: "Balcony", value: "balcony" },
+                { label: "Furnished", value: "furnished" },
+                { label: "Parking", value: "parking" },
+              ]}
+              selectedOptions={formData.addAreaDetails}
               onChange={handleFormSubmission}
-              min="1"
-              max="12"
             />
-            <NumberInput
-              label="Beds"
-              name="beds"
-              value={formData.beds}
+          )}
+          {formData.propertyType !== "rawLand" && (
+            <CheckboxGroup
+              label="Amenities"
+              name="amenities"
+              options={[
+                { label: "Power Backup", value: "powerBackup" },
+                { label: "Lift", value: "lift" },
+                { label: "Security", value: "security" },
+                { label: "Water Supply", value: "waterSupply" },
+                { label: "Gymnasium", value: "gymnasium" },
+                { label: "Swimming Pool", value: "swimmingPool" },
+                { label: "Clubhouse", value: "clubhouse" },
+                { label: "Garden", value: "garden" },
+              ]}
+              selectedOptions={formData.amenities}
               onChange={handleFormSubmission}
-              min="1"
-              max="12"
             />
+          )}
+          {formData.propertyType !== "rawLand" && (
+            <div className="flex gap-4">
+              <NumberInput
+                label="Number of Baths"
+                name="baths"
+                value={formData.baths}
+                onChange={handleFormSubmission}
+                min="1"
+                max="12"
+              />
+              <NumberInput
+                label="Number of Beds"
+                name="beds"
+                value={formData.beds}
+                onChange={handleFormSubmission}
+                min="1"
+                max="12"
+              />
+            </div>
+          )}
+          {formData.priceDetails.additionalCharges && (
             <NumberInput
-              label="Price Break-Up"
-              name="priceBreakUp"
-              value={formData.priceBreakUp}
+              label="Maintenance Charge"
+              name="maintenanceCharge"
+              value={formData.maintenanceCharge}
               onChange={handleFormSubmission}
               min="0"
             />
+          )}
+          <NumberInput
+            label={`Price Break-Up ${
+              formData.transactionType === "rent" ||
+              formData.transactionType === "pg"
+                ? "/Month"
+                : ""
+            } `}
+            name="priceBreakUp"
+            value={formData.priceBreakUp}
+            onChange={handleFormSubmission}
+            min="0"
+          />
+          {formData.transactionType === "rent" ||
+          formData.transactionType === "pg" ? (
             <NumberInput
-              label="Carpet Area"
+              label={
+                formData.transactionType === "rent"
+                  ? "Expected Duration of Stay (months)"
+                  : "Monthly Staying Tenure (months)"
+              }
+              name="accommodationDuration"
+              value={formData.accommodationDuration}
+              onChange={handleFormSubmission}
+              min={0}
+              max={24}
+            />
+          ) : null}
+
+          {formData.propertyType !== "rawLand" && (
+            <NumberInput
+              label="Carpet Area (in sq ft)"
               name="carpetArea"
               value={formData.carpetArea}
               onChange={handleFormSubmission}
               min="0"
             />
-          </div>
-        </div>
-        <div className="flex flex-col gap-6 flex-1">
-          <FileInput
-            label="Upload Property Images"
-            name="propertyImageUrls"
-            onChange={(e) =>
-              setFormData((prevData) => ({
-                ...prevData,
-                propertyImageUrls: Array.from(e.target.files).map((file) =>
-                  URL.createObjectURL(file)
-                ),
-              }))
-            }
-          />
+          )}
         </div>
       </form>
+      <div className="flex flex-col items-center gap-6 p-6 bg-gray-900 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold text-white mb-4">
+          Upload Property Images
+        </h2>
+        <ImageUpload
+          formData={formData}
+          setFormData={setFormData}
+          uploading={uploading}
+          setUploading={setUploading}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+          <DisplayUploadedImages
+            formData={formData}
+            setFormData={setFormData}
+          />
+        </div>
+
+        <button
+          disabled={uploading || submissionLoading}
+          type="submit"
+          className="mt-6 p-4 w-full sm:w-auto text-white bg-blue-600 rounded-lg uppercase hover:opacity-90 transition-opacity duration-200 ease-in-out"
+          onClick={() => formRef.current.requestSubmit()}
+        >
+          {submissionLoading ? "Post Publishing..." : "Create Property Post"}
+        </button>
+        <ToastContainer />
+        {formsubmissionError && (
+          <p className="text-red-700 text-sm mt-2">{formsubmissionError}</p>
+        )}
+      </div>
     </main>
   );
 }

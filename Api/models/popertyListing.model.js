@@ -5,7 +5,6 @@ const propertyListingSchema = new mongoose.Schema(
     propertyType: {
       type: String,
       enum: ["residential", "commercial", "rawLand"],
-      required: true,
     },
     propertyTitle: {
       type: String,
@@ -26,20 +25,20 @@ const propertyListingSchema = new mongoose.Schema(
     transactionType: {
       type: String,
       enum: ["sell", "rent", "pg"],
-      required: true,
     },
 
     priceBreakUp: {
       type: Number,
       required: true,
     },
-    negotiable: {
-      type: Boolean,
-      required: true,
-    },
 
     maintenanceCharge: {
       type: Number,
+    },
+    accommodationDuration: {
+      type: Number,
+      min: 0,
+      max: 24,
     },
     baths: {
       type: Number,
@@ -57,9 +56,19 @@ const propertyListingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-
+    priceDetails: {
+      isNegotiable: {
+        type: Boolean,
+        required: true,
+      },
+      additionalCharges: {
+        type: Boolean,
+        required: true,
+      },
+    },
     propertyStatus: {
       type: String,
+      enum: ["readyToMoveIn", "underConstruction", "upcoming"],
       required: true,
     },
     propertyImageUrls: {
