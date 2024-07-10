@@ -131,7 +131,7 @@ function PostProperty() {
       setSubmissionLoading(false);
 
       if (data.success === false) {
-        setFormSubmissionError(false);
+        setFormSubmissionError(data.message);
       }
 
       navigate(`/propertyView/${data._id}`);
