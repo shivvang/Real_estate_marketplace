@@ -72,7 +72,7 @@ function PropertyList() {
                 className="border p-5 rounded-lg flex justify-between items-center gap-4 mb-4 bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <Link
-                  to={`/property/${property._id}`}
+                  to={`/propertyView/${property._id}`}
                   className="flex items-center gap-4"
                 >
                   {property.propertyImageUrls &&

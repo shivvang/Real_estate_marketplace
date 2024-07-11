@@ -17,6 +17,7 @@ import validateFormData from "./validateFormData ";
 function PostProperty() {
   const [uploading, setUploading] = useState(false);
   const formRef = useRef();
+  const { currentUser } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
     propertyTitle: "",
     description: "",
@@ -54,12 +55,10 @@ function PostProperty() {
       clubhouse: false,
       garden: false,
     },
-    userRefs: "",
+    userRefs: `${currentUser._id}`,
   });
-
   const [formsubmissionError, setFormSubmissionError] = useState(false);
   const [submissionLoading, setSubmissionLoading] = useState(false);
-  const { currentUser } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
 
@@ -102,7 +101,6 @@ function PostProperty() {
     }
   };
 
-  console.log("formData", formData);
   const onFormSubmission = async (e) => {
     e.preventDefault();
     // Validate form data
@@ -123,7 +121,7 @@ function PostProperty() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...formData, userRefs: currentUser._id }),
+        body: JSON.stringify(formData), // Ensure formData is sent correctly
       });
 
       const data = await res.json();
@@ -311,7 +309,12 @@ function PostProperty() {
           )}
           {formData.priceDetails.additionalCharges && (
             <NumberInput
-              label="Maintenance Charge"
+              label={`Maintenance Charge ${
+                formData.transactionType === "rent" ||
+                formData.transactionType === "pg"
+                  ? "/Month"
+                  : ""
+              } `}
               name="maintenanceCharge"
               value={formData.maintenanceCharge}
               onChange={handleFormSubmission}

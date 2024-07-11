@@ -34,7 +34,7 @@ function PropertyView() {
         const data = await res.json();
         if (data.success === false) {
           setLoading(false);
-          setError(true);
+          setError(error.message);
           return;
         }
         setPropertydata(data);
@@ -47,15 +47,14 @@ function PropertyView() {
     };
     fetchData();
   }, [params.propertyId]);
-  console.log(propertyData);
-  console.log(currentUser._id);
+
   return (
     <main>
-      {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
+      {loading && (
+        <p className="text-center my-7 text-2xl text-gray-300">Loading...</p>
+      )}
       {error && (
-        <p className="text-center my-7 text-2xl">
-          Somethings just dont work out bro
-        </p>
+        <p className="text-center my-7 text-2xl text-red-500">{error}</p>
       )}
       {propertyData && !loading && !error && (
         <div>
@@ -72,11 +71,7 @@ function PropertyView() {
               </SwiperSlide>
             ))}
           </Swiper>
-          <div className="fixed top-[13%] right-[3%] z-10 border rounded-full w-12 h-12 flex justify-center items-center bg-slate-100 cursor-pointer">
-            {/* the Clipboard API to copy the current page URL
-            (window.location.href) to the clipboard.
-            navigator.clipboard.writeText is a promise-based method that writes
-            the provided text to the system clipboard. */}
+          <div className="fixed top-[13%] right-[3%] z-10 border rounded-full w-12 h-12 flex justify-center items-center bg-slate-100 cursor-pointer shadow-lg">
             <FaShare
               className="text-slate-500"
               onClick={() => {
@@ -89,56 +84,111 @@ function PropertyView() {
             />
           </div>
           {copied && (
-            <p className="fixed top-[23%] right-[5%] z-10 rounded-md bg-slate-100 p-2">
+            <p className="fixed top-[23%] right-[5%] z-10 rounded-md bg-slate-100 p-2 shadow-lg">
               Link copied!
             </p>
           )}
-          <div className="flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4">
-            <p className="text-2xl font-semibold">
-              {propertyData.name} - ${" "}
+          <div className="flex flex-col max-w-4xl mx-auto p-6 my-7 gap-6 bg-gray-800 rounded-lg shadow-lg">
+            <p className="text-3xl font-bold text-white">
+              {propertyData.propertyTitle} - $
               {propertyData.priceBreakUp.toLocaleString("en-US")}
-              {propertyData.propertyType === "rent" && " / month"}
+              {propertyData.transactionType === "rent" ||
+                (propertyData.transactionType === "pg" && " / month")}
             </p>
-            <p className="flex items-center mt-6 gap-2 text-slate-600  text-sm">
-              <FaMapMarkerAlt className="text-gray-900" />
-              {propertyData.address}
+            <p className="flex items-center gap-2 text-gray-400">
+              <FaMapMarkerAlt className="text-gray-500" />
+              {propertyData.location}
             </p>
             <div>
-              <p className="bg-blue-600 w-full max-w-[200px] text-white text-center p-1 rounded-md">
-                {propertyData.propertyType === "rent" ? "for rent" : "for sale"}
+              <p className="bg-blue-600 w-full max-w-[200px] text-white text-center p-2 rounded-md shadow-md">
+                {propertyData.transactionType === "rent"
+                  ? "For Rent"
+                  : "For Sale"}
               </p>
             </div>
-            <p className="text-slate-800">
-              <strong>Description -</strong> {propertyData.description}
+            <p className="text-gray-300">
+              <strong>Description:</strong> {propertyData.description}
             </p>
-            <ul className="text-green-900 font-semibold text-sm flex flex-wrap items-center gap-4 sm:gap-6">
-              <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaBed className="text-lg text-gray-900" />
+            <ul className="text-green-500 font-semibold flex flex-wrap items-center gap-4">
+              <li className="flex items-center gap-1">
+                <FaBed className="text-lg text-gray-400" />
                 {propertyData.beds > 1
                   ? `${propertyData.beds} beds`
                   : `${propertyData.beds} bed`}
               </li>
-              <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaBath className="text-lg text-gray-900" />
+              <li className="flex items-center gap-1">
+                <FaBath className="text-lg text-gray-400" />
                 {propertyData.baths > 1
-                  ? `${propertyData.baths} beds`
-                  : `${propertyData.baths} bed`}
+                  ? `${propertyData.baths} baths`
+                  : `${propertyData.baths} bath`}
               </li>
-              <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaParking className="text-lg text-gray-900" />
-                {propertyData.parking ? "parking" : "No parking"}
-              </li>
-              <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaChair className="text-lg text-gray-900" />
-                {propertyData.furnished ? "furnished" : "Unfurnished"}
-              </li>
+              {propertyData.addAreaDetails.parking && (
+                <li className="flex items-center gap-1">
+                  <FaParking className="text-lg text-gray-400" />
+                  Parking
+                </li>
+              )}
+              {propertyData.addAreaDetails.furnished && (
+                <li className="flex items-center gap-1">
+                  <FaChair className="text-lg text-gray-400" />
+                  Furnished
+                </li>
+              )}
+              {propertyData.addAreaDetails.balcony && (
+                <li className="flex items-center gap-1">Balcony</li>
+              )}
             </ul>
+            <div>
+              <p className="text-gray-300">
+                <strong>Amenities:</strong>
+              </p>
+              <ul className="text-gray-300 flex flex-wrap items-center gap-2">
+                {propertyData.amenities.powerBackup && (
+                  <li className="bg-gray-700 p-2 rounded-md">Power Backup</li>
+                )}
+                {propertyData.amenities.lift && (
+                  <li className="bg-gray-700 p-2 rounded-md">Lift</li>
+                )}
+                {propertyData.amenities.security && (
+                  <li className="bg-gray-700 p-2 rounded-md">Security</li>
+                )}
+                {propertyData.amenities.waterSupply && (
+                  <li className="bg-gray-700 p-2 rounded-md">Water Supply</li>
+                )}
+                {propertyData.amenities.gymnasium && (
+                  <li className="bg-gray-700 p-2 rounded-md">Gymnasium</li>
+                )}
+                {propertyData.amenities.swimmingPool && (
+                  <li className="bg-gray-700 p-2 rounded-md">Swimming Pool</li>
+                )}
+                {propertyData.amenities.clubhouse && (
+                  <li className="bg-gray-700 p-2 rounded-md">Clubhouse</li>
+                )}
+                {propertyData.amenities.garden && (
+                  <li className="bg-gray-700 p-2 rounded-md">Garden</li>
+                )}
+              </ul>
+            </div>
+            <p className="text-gray-300">
+              <strong>Landmark:</strong> {propertyData.landmark}
+            </p>
+            <p className="text-gray-300">
+              <strong>Carpet Area:</strong> {propertyData.carpetArea} sq ft
+            </p>
+            {propertyData.maintenanceCharge > 0 && (
+              <p className="text-gray-300">
+                <strong>Maintenance Charge:</strong> - $
+                {propertyData.maintenanceCharge}
+                {propertyData.transactionType === "rent" ||
+                  (propertyData.transactionType === "pg" && " / month")}
+              </p>
+            )}
             {currentUser &&
               propertyData.userRefs !== currentUser._id &&
               !contactOwner && (
                 <button
                   onClick={() => setContactOwner(true)}
-                  className="bg-blue-600 text-white rounded-lg uppercase hover:opacity-95 p-3"
+                  className="bg-blue-600 text-white rounded-lg uppercase hover:opacity-95 p-3 mt-4"
                 >
                   Contact Owner
                 </button>

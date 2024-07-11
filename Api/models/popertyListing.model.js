@@ -42,13 +42,12 @@ const propertyListingSchema = new mongoose.Schema(
     },
     baths: {
       type: Number,
-      required: true,
+
       min: 1,
       max: 12,
     },
     beds: {
       type: Number,
-      required: true,
       min: 1,
       max: 12,
     },
@@ -63,7 +62,6 @@ const propertyListingSchema = new mongoose.Schema(
       },
       additionalCharges: {
         type: Boolean,
-        required: true,
       },
     },
     propertyStatus: {
