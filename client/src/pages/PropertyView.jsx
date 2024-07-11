@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -92,8 +93,9 @@ function PropertyView() {
             <p className="text-3xl font-bold text-white">
               {propertyData.propertyTitle} - $
               {propertyData.priceBreakUp.toLocaleString("en-US")}
-              {propertyData.transactionType === "rent" ||
-                (propertyData.transactionType === "pg" && " / month")}
+              {(propertyData.transactionType === "rent" ||
+                propertyData.transactionType === "pg") &&
+                " / month"}
             </p>
             <p className="flex items-center gap-2 text-gray-400">
               <FaMapMarkerAlt className="text-gray-500" />
@@ -179,8 +181,25 @@ function PropertyView() {
               <p className="text-gray-300">
                 <strong>Maintenance Charge:</strong> - $
                 {propertyData.maintenanceCharge}
-                {propertyData.transactionType === "rent" ||
-                  (propertyData.transactionType === "pg" && " / month")}
+                {(propertyData.transactionType === "rent" ||
+                  propertyData.transactionType === "pg") &&
+                  " / month"}
+              </p>
+            )}
+            {propertyData.accommodationDuration > 0 && (
+              <p className="text-gray-300">
+                <strong>Accommodation Duration:</strong> -{" "}
+                {propertyData.accommodationDuration} months
+              </p>
+            )}
+            {propertyData.priceDetails.isNegotiable && (
+              <p className="text-gray-300">
+                <strong>Price is negotiable</strong>
+              </p>
+            )}
+            {propertyData.priceDetails.additionalCharges && (
+              <p className="text-gray-300">
+                <strong>Additional charges may apply</strong>
               </p>
             )}
             {currentUser &&

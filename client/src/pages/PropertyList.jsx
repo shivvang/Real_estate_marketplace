@@ -49,19 +49,20 @@ function PropertyList() {
       console.log(error.name);
     }
   };
+
   return (
-    <div className="p-5 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-semibold text-center mb-6 text-primary">
+    <div className="p-5 max-w-7xl mx-auto mt-10 bg-gray-800 rounded-lg shadow-md">
+      <h1 className="text-3xl font-semibold text-center mb-8 text-blue-500">
         Your Properties
       </h1>
 
       {loading ? (
-        <div className="text-center text-primary">Loading...</div>
+        <div className="text-center text-blue-500">Loading...</div>
       ) : (
         <>
           {showUserPropertyError && (
-            <p className="text-red-600 text-center mb-4">
-              Error occurred while fetching user created property.
+            <p className="text-red-600 text-center mb-6">
+              Error occurred while fetching user-created property.
             </p>
           )}
 
@@ -69,52 +70,59 @@ function PropertyList() {
             showuserproperties.map((property) => (
               <div
                 key={property._id}
-                className="border p-5 rounded-lg flex justify-between items-center gap-4 mb-4 bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                className="block border p-5 rounded-lg mb-6 bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <Link
                   to={`/propertyView/${property._id}`}
-                  className="flex items-center gap-4"
+                  className="block w-full h-full"
                 >
-                  {property.propertyImageUrls &&
-                    property.propertyImageUrls
-                      .slice(0, 3)
-                      .map((image, index) => (
-                        <img
-                          key={index}
-                          src={image}
-                          alt={`Property ${property.name}`}
-                          className="h-20 w-20 object-cover rounded-md"
-                        />
-                      ))}
+                  <div className="flex justify-between items-center gap-4">
+                    <div className="flex items-center gap-4">
+                      {property.propertyImageUrls &&
+                        property.propertyImageUrls
+                          .slice(0, 3)
+                          .map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Property ${property.name}`}
+                              className="h-20 w-20 object-cover rounded-md"
+                            />
+                          ))}
+                    </div>
+                    <div className="flex-1 px-4">
+                      <h2 className="text-blue-400 font-semibold text-lg hover:underline">
+                        {property.name}
+                      </h2>
+                      <p className="text-gray-400 truncate mt-2">
+                        {property.description}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handlePropetyDeletion(property._id);
+                        }}
+                        className="text-red-500 uppercase hover:underline mb-2"
+                      >
+                        Delete
+                      </button>
+                      <Link
+                        to={`/updateproperty/${property._id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-green-500 uppercase hover:underline"
+                      >
+                        Edit
+                      </Link>
+                    </div>
+                  </div>
                 </Link>
-                <div className="flex-1">
-                  <Link
-                    className="text-secondary text-slate-50 font-semibold text-lg hover:underline"
-                    to={`/property/${property._id}`}
-                  >
-                    {property.name}
-                  </Link>
-                  <p className="text-gray-500 truncate">
-                    {property.description}
-                  </p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <button
-                    onClick={() => handlePropetyDeletion(property._id)}
-                    className="text-red-600 uppercase hover:underline mb-2"
-                  >
-                    Delete
-                  </button>
-                  <Link to={`/updateproperty/${property._id}`}>
-                    <button className="text-green-600 uppercase hover:underline">
-                      Edit
-                    </button>
-                  </Link>
-                </div>
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-700">No properties found.</p>
+            <p className="text-center text-gray-500">No properties found.</p>
           )}
         </>
       )}

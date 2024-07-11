@@ -2,8 +2,6 @@ import PropertyListing from "../models/popertyListing.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const postProperty = async (req, res, next) => {
-  console.log("Received data:", req.body); // Add this line to log the received data
-
   const {
     propertyTitle,
     description,
@@ -78,24 +76,68 @@ export const deleteProperties = async (req, res, next) => {
 };
 
 export const updateProperties = async (req, res, next) => {
+  const {
+    propertyTitle,
+    description,
+    location,
+    landmark,
+    transactionType,
+    propertyType,
+    ownershipType,
+    baths,
+    beds,
+    priceBreakUp,
+    maintenanceCharge,
+    carpetArea,
+    propertyImageUrls,
+    propertyStatus,
+    addAreaDetails,
+    accommodationDuration,
+    priceDetails,
+    amenities,
+    userRefs,
+  } = req.body.formData;
+
+  const errors = {};
+
+  // Validate required fields
+  if (!propertyTitle) errors.propertyTitle = "Property title is required.";
+  if (!description) errors.description = "Description is required.";
+  if (!location) errors.location = "Location is required.";
+  if (!landmark) errors.landmark = "Landmark is required.";
+  if (priceBreakUp <= 0)
+    errors.priceBreakUp = "Price break-up must be greater than 0.";
+  if (carpetArea <= 0)
+    errors.carpetArea = "Carpet area must be greater than 0.";
+
+  if (!propertyImageUrls || propertyImageUrls.length === 0)
+    errors.propertyImageUrls = "At least one property image is required.";
+  if (!userRefs) errors.userRefs = "User reference is required.";
+
+  // Check for any validation errors
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({ success: false, errors });
+  }
+
   const propertyalreadyexisting = await PropertyListing.findById(req.params.id);
 
   if (!propertyalreadyexisting) {
-    return next(errorHandler(404, "there does not exist a property like this"));
+    return next(errorHandler(404, "There does not exist a property like this"));
   }
 
   if (req.user.id !== propertyalreadyexisting.userRefs) {
     return next(
       errorHandler(
         401,
-        "cannot update this cause youre not the one who made this"
+        "Cannot update this because you are not the one who made this"
       )
     );
   }
+
   try {
     const updatedProperty = await PropertyListing.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      req.body.formData,
       { new: true }
     );
     res.status(200).json(updatedProperty);

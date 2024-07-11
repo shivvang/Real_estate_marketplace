@@ -1,12 +1,13 @@
 import express from "express";
 import {
+  updateProperties,
   deleteProperties,
   getPropertiesData,
   getProperty,
   postProperty,
-  updateProperties,
 } from "../controllers/propertyListing.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
+
 const router = express.Router();
 
 router.post("/postProperty", verifyToken, postProperty);

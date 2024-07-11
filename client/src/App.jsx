@@ -8,10 +8,11 @@ import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
 
 import PropertyList from "./pages/PropertyList";
-import UpdateProperty from "./pages/UpdateProperty";
+
 import PropertyView from "./pages/PropertyView";
 import SearchPage from "./pages/SearchPage";
 import PostProperty from "./pages/PostProperty/PostProperty";
+import UpdateProperty from "./pages/UpdateProperty/UpdateProperty";
 
 function App() {
   return (
