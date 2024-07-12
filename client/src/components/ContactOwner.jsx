@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 function ContactOwner({ propertyData }) {
@@ -7,7 +8,7 @@ function ContactOwner({ propertyData }) {
   function textingOwner(e) {
     setMessageToOwner(e.target.value);
   }
-  console.log("message written by someother guy", messageToOwner);
+
   useEffect(() => {
     const fetchOwner = async () => {
       try {
@@ -24,26 +25,29 @@ function ContactOwner({ propertyData }) {
   return (
     <>
       {contactOwner && (
-        <div className="flex flex-col gap-2">
-          <p>
+        <div className="flex flex-col gap-4 p-4 bg-gray-800 rounded-lg shadow-md">
+          <p className="text-xl text-gray-200">
             Contact{" "}
-            <span className="font-semibold">{contactOwner.userName}</span> for{" "}
-            <span className="font-semibold">
-              {propertyData.name.toLowerCase()}
+            <span className="font-semibold text-blue-400">
+              {contactOwner.userName}
+            </span>{" "}
+            regarding{" "}
+            <span className="font-semibold text-blue-400">
+              {propertyData.propertyTitle.toLowerCase()}
             </span>
           </p>
           <textarea
             name="message"
             id="message"
-            rows={2}
+            rows={4}
             value={messageToOwner}
             onChange={textingOwner}
-            placeholder="enter your message here..."
-            className="w-full borde p-3 rounded-lg"
+            placeholder="Enter your message here..."
+            className="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
           ></textarea>
           <Link
-            to={`mailto:${contactOwner.email}?subject=Regarding ${propertyData.name}&body=${messageToOwner}`}
-            className="bg-slate-700 text-white text-center p-3 uppercase rounded-lg hover:opacity-95"
+            to={`mailto:${contactOwner.email}?subject=Regarding ${propertyData.propertyTitle}&body=${messageToOwner}`}
+            className="bg-blue-600 text-white text-center py-3 uppercase rounded-lg hover:bg-blue-500 transition"
           >
             Send Message
           </Link>
