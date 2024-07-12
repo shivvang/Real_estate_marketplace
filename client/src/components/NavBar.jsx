@@ -24,45 +24,54 @@ function NavBar() {
   }, [location.search]);
   return (
     <header className="bg-gray-900 text-white">
-      <div className="container mx-auto flex justify-between items-center py-4">
-        <Link to="/" className="text-2xl font-bold tracking-wider">
-          Home<span className="text-gray-400">Quest</span>
+      <div className="container mx-auto flex justify-between items-center py-4 px-6">
+        <Link to="/" className="text-3xl font-bold tracking-wider">
+          Home<span className="text-blue-500">Quest</span>
         </Link>
 
-        <form onSubmit={handleFormSubmission} className="flex items-center">
+        <form
+          onSubmit={handleFormSubmission}
+          className="relative w-full max-w-lg"
+        >
           <input
             type="text"
-            placeholder="Search"
-            className="px-4 py-2 rounded-l-lg focus:outline-none focus:ring focus:border-blue-300 bg-gray-800 text-white"
+            placeholder="Search for properties, locations, and more"
+            className="w-full pl-4 pr-12 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="bg-blue-600 px-4 py-2 rounded-r-lg flex items-center">
-            <FaSearch className="text-white text-lg" />
+          <button
+            type="submit"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 p-2 rounded-full text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <FaSearch className="text-lg" />
           </button>
         </form>
-        <ul className="hidden md:flex items-center gap-4 lg:gap-6">
-          <li className="text-sm">
+
+        <ul className="hidden md:flex items-center gap-6">
+          <li className="text-lg">
             <Link to="/" className="hover:text-blue-500">
               Home
             </Link>
           </li>
-          <li className="text-sm">
+          <li className="text-lg">
             <Link to="/PropertyList" className="hover:text-blue-500">
               PropertyList
             </Link>
           </li>
-          <Link to="/profile">
-            {currentUser ? (
-              <img
-                className="rounded-full h-7 w-7 object-cover"
-                src={currentUser.avatar}
-                alt="profile"
-              />
-            ) : (
-              <li className="text-sm hover:text-blue-500">Sign In</li>
-            )}
-          </Link>
+          <li className="text-lg">
+            <Link to="/profile" className="flex items-center">
+              {currentUser ? (
+                <img
+                  className="rounded-full h-8 w-8 object-cover border-2 border-gray-300"
+                  src={currentUser.avatar}
+                  alt="profile"
+                />
+              ) : (
+                <span className="hover:text-blue-500">Sign In</span>
+              )}
+            </Link>
+          </li>
         </ul>
       </div>
     </header>

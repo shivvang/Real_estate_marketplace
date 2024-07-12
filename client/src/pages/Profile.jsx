@@ -144,12 +144,12 @@ function Profile() {
     }
   };
   return (
-    <div className="bg-gray-900 p-6 max-w-lg mx-auto shadow-md rounded-lg mt-14">
-      <h1 className="text-3xl font-semibold text-center text-white mb-6">
-        Profile
+    <div className="bg-gray-800 p-8 max-w-2xl mx-auto shadow-xl rounded-lg mt-14">
+      <h1 className="text-4xl font-semibold text-center text-white mb-8">
+        User Profile
       </h1>
       <form className="flex flex-col gap-6" onSubmit={handleFormSubmit}>
-        <div className="self-center mb-4">
+        <div className="self-center mb-6">
           <input
             type="file"
             ref={FileRef}
@@ -159,20 +159,20 @@ function Profile() {
           />
           <img
             onClick={() => FileRef.current.click()}
-            src={formData.avatar || currentUser.avatar}
+            src={file ? URL.createObjectURL(file) : currentUser.avatar}
             alt="profile"
-            className="rounded-full h-32 w-32 object-cover cursor-pointer border-2 border-gray-300"
+            className="rounded-full h-40 w-40 object-cover cursor-pointer border-4 border-blue-500"
           />
-          <p className="text-sm self-center mt-4">
+          <p className="text-sm self-center mt-4 text-gray-300">
             {fileError ? (
               <span className="text-red-700 font-semibold">
-                Error in image Upload
+                Error in image upload
               </span>
             ) : uploadPercentage > 0 && uploadPercentage < 100 ? (
-              <span className="text-blue-700">{`uploading ${uploadPercentage}%`}</span>
+              <span className="text-blue-700">{`Uploading ${uploadPercentage}%`}</span>
             ) : uploadPercentage === 100 ? (
               <span className="text-green-700 font-semibold">
-                Image succesfully uploaded
+                Image successfully uploaded
               </span>
             ) : (
               ""
@@ -183,15 +183,15 @@ function Profile() {
           type="text"
           placeholder="Username"
           id="userName"
-          className="border border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+          className="border border-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-700 text-white placeholder-gray-400"
           defaultValue={currentUser.userName}
           onChange={handleInputChanges}
         />
         <input
-          type="text"
+          type="email"
           placeholder="Email"
           id="email"
-          className="border border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+          className="border border-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-700 text-white placeholder-gray-400"
           defaultValue={currentUser.email}
           onChange={handleInputChanges}
         />
@@ -199,17 +199,17 @@ function Profile() {
           type="password"
           placeholder="Password"
           id="password"
-          className="border border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+          className="border border-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-700 text-white placeholder-gray-400"
           onChange={handleInputChanges}
         />
         <button
           disabled={loading}
-          className="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg p-3 uppercase hover:opacity-95 transition duration-300 disabled:opacity-80"
+          className="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg p-3 uppercase hover:opacity-95 transition duration-300 disabled:opacity-80"
         >
           {loading ? "Loading..." : "Update"}
         </button>
         <Link
-          className="bg-gradient-to-r from-green-500 to-green-700 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 transition-opacity duration-200 ease-in-out shadow-md hover:shadow-lg"
+          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 transition-opacity duration-200 ease-in-out shadow-md hover:shadow-lg"
           to={"/postproperty"}
         >
           Post Property
@@ -218,24 +218,24 @@ function Profile() {
       <div className="flex justify-between mt-6">
         <span
           onClick={handleDeletionOfUser}
-          className="text-red-600 cursor-pointer hover:underline"
+          className="text-red-500 cursor-pointer hover:underline"
         >
           Delete Account
         </span>
         <span
           onClick={handleSignOut}
-          className="text-red-600 cursor-pointer hover:underline"
+          className="text-red-500 cursor-pointer hover:underline"
         >
           Sign Out
         </span>
       </div>
-      <p className="text-red-700 mt-5 text-center">{error ? error : ""}</p>
-      <p className="text-green-700 mt-5 text-center">
-        {succesMessage ? "User details updated" : ""}
-      </p>
+      {error && <p className="text-red-700 mt-5 text-center">{error}</p>}
+      {succesMessage && (
+        <p className="text-green-700 mt-5 text-center">User details updated</p>
+      )}
       <Link
         to="/PropertyList"
-        className="bg-green-700 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 hover:shadow-md transition duration-300 ease-in-out flex justify-center"
+        className="bg-blue-500 text-white py-3 px-6 rounded-lg uppercase text-center hover:bg-blue-400 transition duration-300 ease-in-out flex justify-center mt-6"
       >
         Show User Properties
       </Link>
