@@ -70,13 +70,13 @@ function PropertyList() {
             showuserproperties.map((property) => (
               <div
                 key={property._id}
-                className="block border p-5 rounded-lg mb-6 bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                className="border border-gray-700 p-5 rounded-lg mb-6 bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <Link
                   to={`/propertyView/${property._id}`}
                   className="block w-full h-full"
                 >
-                  <div className="flex justify-between items-center gap-4">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="flex items-center gap-4">
                       {property.propertyImageUrls &&
                         property.propertyImageUrls
@@ -86,19 +86,19 @@ function PropertyList() {
                               key={index}
                               src={image}
                               alt={`Property ${property.name}`}
-                              className="h-20 w-20 object-cover rounded-md"
+                              className="h-24 w-24 object-cover rounded-md border border-gray-700"
                             />
                           ))}
                     </div>
-                    <div className="flex-1 px-4">
-                      <h2 className="text-blue-400 font-semibold text-lg hover:underline">
+                    <div className="flex-1">
+                      <h2 className="text-blue-400 font-semibold text-lg hover:underline truncate">
                         {property.name}
                       </h2>
-                      <p className="text-gray-400 truncate mt-2">
+                      <p className="text-gray-400 mt-2 line-clamp-3">
                         {property.description}
                       </p>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-start md:items-center mt-4 md:mt-0">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

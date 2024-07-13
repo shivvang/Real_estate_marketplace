@@ -104,6 +104,10 @@ const propertyListingSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
+      cctvSecturity: {
+        type: Boolean,
+        default: false,
+      },
       waterSupply: {
         type: Boolean,
         default: true,

@@ -15,7 +15,6 @@ function SearchPage() {
 
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showMore, setShowMore] = useState(false);
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchTermFromCurrentUrl = urlParams.get("searchTerm");
@@ -115,15 +114,13 @@ function SearchPage() {
     const searchQuery = urlParams.toString();
     const res = await fetch(`/api/propertyListing/get?${searchQuery}`);
     const data = await res.json();
-    if (data.length < 9) {
-      setShowMore(false);
-    }
+
     setSearchResults(...searchResults, ...data);
   };
 
   return (
-    <div className="flex flex-col md:flex-row">
-      <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen bg-gray-900 text-white w-full md:w-auto">
+    <div className="flex flex-col md:flex-row h-screen">
+      <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen bg-gray-900 text-white w-full md:w-1/2 overflow-y-auto">
         <form onSubmit={handleFormSubmission} className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
             <label className="whitespace-nowrap font-semibold text-gray-300">
@@ -324,7 +321,7 @@ function SearchPage() {
           </button>
         </form>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <h1 className="text-3xl font-semibold p-3 text-gray-800 mt-5">
           Results...
         </h1>

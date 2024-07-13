@@ -54,6 +54,7 @@ function PostProperty() {
       swimmingPool: false,
       clubhouse: false,
       garden: false,
+      cctvSecturity: false,
     },
     userRefs: `${currentUser._id}`,
   });
@@ -275,13 +276,14 @@ function PostProperty() {
               name="amenities"
               options={[
                 { label: "Power Backup", value: "powerBackup" },
-                { label: "Lift", value: "lift" },
-                { label: "Security", value: "security" },
+                { label: "High speed Eleveators", value: "lift" },
+                { label: "24x7 Security", value: "security" },
                 { label: "Water Supply", value: "waterSupply" },
                 { label: "Gymnasium", value: "gymnasium" },
                 { label: "Swimming Pool", value: "swimmingPool" },
                 { label: "Clubhouse", value: "clubhouse" },
-                { label: "Garden", value: "garden" },
+                { label: "Children's play Area", value: "garden" },
+                { label: "CCTV Camera Security", value: "cctvSecturity" },
               ]}
               selectedOptions={formData.amenities}
               onChange={handleFormSubmission}
