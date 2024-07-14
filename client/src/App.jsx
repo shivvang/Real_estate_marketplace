@@ -26,8 +26,14 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/propertyView/:propertyId" element={<PropertyView />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route element={<PrivateRoute />}>
+        <Route
+          element={
+            <PrivateRoute allowedRoles={["buyer", "seller", "tenant"]} />
+          }
+        >
           <Route path="/profile" element={<Profile />} />
+        </Route>
+        <Route element={<PrivateRoute allowedRoles={["seller"]} />}>
           <Route path="/postproperty" element={<PostProperty />} />
           <Route path="/PropertyList" element={<PropertyList />} />
           <Route

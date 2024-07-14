@@ -3,7 +3,7 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 export const signup = async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { userName, email, password, role } = req.body;
   //check if fields are empty
   if ([email, userName, password].some((field) => field?.trim() === "")) {
     errorHandler(401, "all fields are supposed to be filled");
@@ -13,14 +13,15 @@ export const signup = async (req, res) => {
   const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
 
   if (existingUser) {
-    errorHandler(401, "you already have an account login instead");
+    errorHandler(401, "you already have an account please log in instead");
   }
-
+  //role assumed to be handled during frontend here
   const hashedPassword = bcryptjs.hashSync(password, 10);
   const user = await User.create({
     userName,
     email,
     password: hashedPassword,
+    role: role || "buyer",
   });
 
   res.status(200).json({ user });
@@ -73,6 +74,7 @@ export const googleController = async (req, res, next) => {
         email: req.body.email,
         password: hashedPassword,
         avatar: req.body.userAvatar,
+        role: req.body.role || "buyer",
       });
       await newUser.save();
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY);

@@ -4,6 +4,7 @@ const initialState = {
   currentUser: null,
   error: null,
   loading: false,
+  role: null,
 };
 
 const userSlice = createSlice({
@@ -12,33 +13,29 @@ const userSlice = createSlice({
   reducers: {
     signInStart: (state) => {
       state.loading = true;
-      console.log("signInStart: state.loading =", state.loading); // Debug log
     },
     signInSuccess: (state, action) => {
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;
-      console.log("signInSuccess: state =", state); // Debug log
+      state.role = action.payload.role;
     },
     signInFailed: (state, action) => {
       state.error = action.payload;
       state.loading = false;
-      console.log("signInFailed: state.error =", state.error); // Debug log
     },
     updatingUserbegin: (state) => {
       state.loading = true;
-      console.log("updatingUserbegin: state =", state);
     },
     updateUserSuccess: (state, action) => {
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;
-      console.log("updateUserSuccess: state =", state);
+      state.role = action.payload.role;
     },
     updateUserFailed: (state, action) => {
       state.error = action.payload;
       state.loading = false;
-      console.log("updateUserFailed: state =", state);
     },
     deleteUserStart: (state) => {
       state.loading = true;
@@ -47,6 +44,7 @@ const userSlice = createSlice({
       state.currentUser = null;
       state.loading = false;
       state.error = null;
+      state.role = null;
     },
     deleteUserFailed: (state, action) => {
       state.error = action.payload;
@@ -59,6 +57,7 @@ const userSlice = createSlice({
       state.currentUser = null;
       state.loading = false;
       state.error = null;
+      state.role = null;
     },
     signOutFailed: (state, action) => {
       state.error = action.payload;

@@ -5,6 +5,7 @@ import Oauth from "../../components/Oauth";
 import { ValidateSignUpData } from "./ValidateSignUpdata";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RoleSelection from "../../components/RoleSelection";
 
 function SignUp() {
   const [formData, setFormData] = useState({});
@@ -15,6 +16,12 @@ function SignUp() {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
+    });
+  };
+  const handleRoleChange = (e) => {
+    setFormData({
+      ...formData,
+      role: e.target.value,
     });
   };
 
@@ -57,6 +64,7 @@ function SignUp() {
       setLoading(false);
     }
   };
+  console.log("sign up ka formdata", formData);
 
   return (
     <div className="max-w-lg mx-auto bg-gray-900 rounded-lg shadow-lg p-6 mt-14">
@@ -84,6 +92,10 @@ function SignUp() {
           className="border-2 border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-800 text-white placeholder-gray-400"
           id="password"
           onChange={handleChange}
+        />
+        <RoleSelection
+          handleRoleChange={handleRoleChange}
+          selectedRole={formData.role}
         />
         <button
           disabled={loading}
