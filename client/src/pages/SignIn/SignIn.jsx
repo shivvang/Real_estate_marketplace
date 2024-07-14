@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -5,8 +6,11 @@ import {
   signInStart,
   signInSuccess,
   signInFailed,
-} from "../redux/user/userSlice";
-import Oauth from "../components/Oauth";
+} from "../../redux/user/userSlice";
+import Oauth from "../../components/Oauth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { validateSignInData } from "./validateSignInData";
 
 function SignIn() {
   const [formData, setFormData] = useState({});
@@ -23,6 +27,15 @@ function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateSignInData(formData);
+    if (Object.keys(errors).length > 0) {
+      // Displaying errors using toast notifications
+      Object.values(errors).forEach((error) => {
+        toast.error(error);
+      });
+      return;
+    }
+
     try {
       dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
@@ -83,6 +96,7 @@ function SignIn() {
           {" "}
           <span className="text-blue-700 hover:underline">Sign up</span>
         </Link>
+        <ToastContainer />
       </div>
       {error && <p className="text-red-500 mt-5">{error}</p>}
     </div>

@@ -1,6 +1,10 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Oauth from "../components/Oauth";
+import Oauth from "../../components/Oauth";
+import { ValidateSignUpData } from "./ValidateSignUpdata";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function SignUp() {
   const [formData, setFormData] = useState({});
@@ -16,6 +20,14 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = ValidateSignUpData(formData);
+    if (Object.keys(errors).length > 0) {
+      // Displaying errors using toast notifications
+      Object.values(errors).forEach((error) => {
+        toast.error(error);
+      });
+      return;
+    }
     try {
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
@@ -87,6 +99,7 @@ function SignUp() {
         <Link to={"/signin"} className="ml-1">
           <span className="text-blue-700 hover:underline">Sign in</span>
         </Link>
+        <ToastContainer />
       </div>
       {error && <p className="text-red-500 mt-5">{error}</p>}
     </div>

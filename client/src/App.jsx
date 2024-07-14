@@ -1,8 +1,9 @@
+// eslint-disable-next-line no-unused-vars
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import SignUp from "./pages/SignUp";
-import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp/SignUp";
+
 import Profile from "./pages/Profile";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
@@ -13,6 +14,7 @@ import PropertyView from "./pages/PropertyView";
 import SearchPage from "./pages/SearchPage";
 import PostProperty from "./pages/PostProperty/PostProperty";
 import UpdateProperty from "./pages/UpdateProperty/UpdateProperty";
+import SignIn from "./pages/SignIn/SignIn";
 
 function App() {
   return (
