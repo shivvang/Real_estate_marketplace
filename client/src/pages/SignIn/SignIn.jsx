@@ -46,11 +46,9 @@ function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
       if (!data._id) {
         dispatch(signInFailed(data.message));
       } else {
-        console.log("Dispatching signInSuccess");
         dispatch(signInSuccess(data));
 
         // Navigate to the home page
@@ -89,7 +87,7 @@ function SignIn() {
         >
           {loading ? "Loading..." : "Sign In"}
         </button>
-        <Oauth />
+        <Oauth dontDispalythisInSignIn={true} />
       </form>
       <div className="flex justify-center mt-5">
         <p className="text-gray-600">Dont have an Account?</p>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from "react";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -6,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import RoleSelection from "./RoleSelection";
-function Oauth() {
+function Oauth({ dontDispalythisInSignIn }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [role, setRole] = useState("buyer");
@@ -15,7 +16,7 @@ function Oauth() {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
       const result = await signInWithPopup(auth, provider);
-      console.log(result);
+
       const res = await fetch("/api/auth/googleOauth", {
         method: "POST",
         headers: {
@@ -25,28 +26,32 @@ function Oauth() {
           name: result.user.displayName,
           email: result.user.email,
           userAvatar: result.user.photoURL,
+          role,
         }),
       });
 
       const data = await res.json();
+
       dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
-      console.log("could not sign innnnnnn", error.message);
+      console.log("could not sign in", error.message);
     }
   };
 
   const handleRoleChange = (e) => {
     setRole(e.target.value);
   };
-  console.log("role selection here at ouath", role);
+
   return (
-    <div className="flex flex-col items-center gap-4">
-      <RoleSelection
-        handleRoleChange={handleRoleChange}
-        selectedRole={role}
-        uniqueKey="oauth"
-      />
+    <div className="flex flex-col items-center gap-4 ">
+      {!dontDispalythisInSignIn && (
+        <RoleSelection
+          handleRoleChange={handleRoleChange}
+          selectedRole={role}
+          uniqueKey="oauth"
+        />
+      )}
 
       <button
         onClick={handleGoogleClick}

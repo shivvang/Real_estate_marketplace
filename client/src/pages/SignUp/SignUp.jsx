@@ -64,7 +64,6 @@ function SignUp() {
       setLoading(false);
     }
   };
-  console.log("sign up ka formdata", formData);
 
   return (
     <div className="max-w-lg mx-auto bg-gray-900 rounded-lg shadow-lg p-6 mt-14">

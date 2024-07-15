@@ -23,8 +23,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["buyer", " seller", "tenant"],
-      default: "buyer",
+      enum: ["buyer", "seller", "tenant"], // Ensure there are no extra spaces
+      required: true,
     },
   },
   { timestamps: true }

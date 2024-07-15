@@ -23,6 +23,7 @@ export const signup = async (req, res) => {
     password: hashedPassword,
     role: role || "buyer",
   });
+  const { password: pass, ...rest } = user.toObject();
 
   res.status(200).json({ user });
 };
@@ -39,7 +40,7 @@ export const signin = async (req, res, next) => {
 
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET_KEY);
 
-    const { password: pass, ...rest } = validUser._doc;
+    const { password: pass, ...rest } = validUser.toObject();
     res
       .cookie("access_token", token, { httpOnly: true, secure: true })
       .status(200)
@@ -54,7 +55,7 @@ export const googleController = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
-      const { password: pass, ...rest } = user._doc;
+      const { password: pass, ...rest } = user.toObject();
       res
         .cookie("access_token", token, { httpOnly: true })
         .status(200)
@@ -78,7 +79,9 @@ export const googleController = async (req, res, next) => {
       });
       await newUser.save();
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY);
-      const { password: pass, ...rest } = newUser._doc;
+
+      const { password: pass, ...rest } = newUser.toObject();
+
       res
         .cookie("access_token", token, { httpOnly: true })
         .status(200)
