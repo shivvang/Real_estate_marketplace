@@ -39,9 +39,15 @@ function Oauth() {
   const handleRoleChange = (e) => {
     setRole(e.target.value);
   };
+  console.log("role selection here at ouath", role);
   return (
     <div className="flex flex-col items-center gap-4">
-      <RoleSelection handleRoleChange={handleRoleChange} selectedRole={role} />
+      <RoleSelection
+        handleRoleChange={handleRoleChange}
+        selectedRole={role}
+        uniqueKey="oauth"
+      />
+
       <button
         onClick={handleGoogleClick}
         type="button"

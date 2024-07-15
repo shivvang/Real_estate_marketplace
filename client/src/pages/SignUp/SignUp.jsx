@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import RoleSelection from "../../components/RoleSelection";
 
 function SignUp() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ role: "buyer" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -96,6 +96,7 @@ function SignUp() {
         <RoleSelection
           handleRoleChange={handleRoleChange}
           selectedRole={formData.role}
+          uniqueKey="signUp"
         />
         <button
           disabled={loading}

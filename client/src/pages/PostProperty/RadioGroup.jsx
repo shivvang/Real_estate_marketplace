@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from "react";
+// eslint-disable-next-line no-unused-vars
+import React from "react";
 const RadioGroup = ({ label, name, options, selectedOption, onChange }) => {
   return (
     <div className="mb-4">
@@ -11,7 +12,7 @@ const RadioGroup = ({ label, name, options, selectedOption, onChange }) => {
               type="radio"
               name={name}
               id={option.value}
-              value={option.value} // Ensure value is set correctly
+              value={option.value}
               onChange={onChange}
               checked={selectedOption === option.value}
               className="accent-blue-600 h-5 w-5"
