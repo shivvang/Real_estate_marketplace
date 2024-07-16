@@ -4,8 +4,9 @@ import { useSelector } from "react-redux";
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 function NavBar() {
-  const [searchTerm, setSearchTerm] = useState("");
   const { currentUser } = useSelector((state) => state.user);
+
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const handleFormSubmission = (e) => {
     e.preventDefault();
@@ -23,6 +24,11 @@ function NavBar() {
       setSearchTerm(searchTermFromUrl);
     }
   }, [location.search]);
+
+  if (!currentUser) {
+    return null; // Render nothing if the user is not authenticated
+  }
+  console.log(currentUser.role);
   return (
     <header className="bg-gray-900 text-white">
       <div className="container mx-auto flex justify-between items-center py-4 px-6">
@@ -55,11 +61,13 @@ function NavBar() {
               Home
             </Link>
           </li>
-          <li className="text-lg">
-            <Link to="/PropertyList" className="hover:text-blue-500">
-              PropertyList
-            </Link>
-          </li>
+          {currentUser.role === "seller" && (
+            <li className="text-lg">
+              <Link to="/PropertyList" className="hover:text-blue-500">
+                PropertyList
+              </Link>
+            </li>
+          )}
           <li className="text-lg">
             <Link to="/profile" className="flex items-center">
               {currentUser ? (

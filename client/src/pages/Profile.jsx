@@ -208,12 +208,14 @@ function Profile() {
         >
           {loading ? "Loading..." : "Update"}
         </button>
-        <Link
-          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 transition-opacity duration-200 ease-in-out shadow-md hover:shadow-lg"
-          to={"/postproperty"}
-        >
-          Post Property
-        </Link>
+        {currentUser.role === "seller" && (
+          <Link
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg uppercase text-center hover:opacity-90 transition-opacity duration-200 ease-in-out shadow-md hover:shadow-lg"
+            to={"/postproperty"}
+          >
+            Post Property
+          </Link>
+        )}
       </form>
       <div className="flex justify-between mt-6">
         <span
@@ -233,12 +235,14 @@ function Profile() {
       {succesMessage && (
         <p className="text-green-700 mt-5 text-center">User details updated</p>
       )}
-      <Link
-        to="/PropertyList"
-        className="bg-blue-500 text-white py-3 px-6 rounded-lg uppercase text-center hover:bg-blue-400 transition duration-300 ease-in-out flex justify-center mt-6"
-      >
-        Show User Properties
-      </Link>
+      {currentUser.role === "seller" && (
+        <Link
+          to="/PropertyList"
+          className="bg-blue-500 text-white py-3 px-6 rounded-lg uppercase text-center hover:bg-blue-400 transition duration-300 ease-in-out flex justify-center mt-6"
+        >
+          Show User Properties
+        </Link>
+      )}
     </div>
   );
 }

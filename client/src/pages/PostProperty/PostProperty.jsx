@@ -58,11 +58,43 @@ function PostProperty() {
     },
     userRefs: `${currentUser._id}`,
   });
+
   const [formsubmissionError, setFormSubmissionError] = useState(false);
   const [submissionLoading, setSubmissionLoading] = useState(false);
 
   const navigate = useNavigate();
 
+  const allOptions = [
+    { label: "Power Backup", value: "powerBackup" },
+    { label: "High speed Eleveators", value: "lift" },
+    { label: "24x7 Security", value: "security" },
+    { label: "Water Supply", value: "waterSupply" },
+    { label: "Gymnasium", value: "gymnasium" },
+    { label: "Swimming Pool", value: "swimmingPool" },
+    { label: "Clubhouse", value: "clubhouse" },
+    { label: "Children's play Area", value: "garden" },
+    { label: "CCTV Camera Security", value: "cctvSecturity" },
+  ];
+
+  const filterOptionsByPropertyType = (propertyType) => {
+    if (propertyType === "commercial") {
+      return allOptions.filter(
+        (option) =>
+          !["gymnasium", "swimmingPool", "clubhouse", "garden"].includes(
+            option.value
+          )
+      );
+    }
+    return allOptions;
+  };
+
+  const conditionalOptionsAreaDetails = [
+    ...(formData.propertyType !== "commercial"
+      ? [{ label: "Balcony", value: "balcony" }]
+      : []),
+    { label: "Furnished", value: "furnished" },
+    { label: "Parking", value: "parking" },
+  ];
   const handleFormSubmission = (e) => {
     const { name, value, type, checked } = e.target;
     const [field, subfield] = name.split(".");
@@ -102,6 +134,7 @@ function PostProperty() {
     }
   };
 
+  const filteredOptions = filterOptionsByPropertyType(formData.propertyType);
   const onFormSubmission = async (e) => {
     e.preventDefault();
     // Validate form data
@@ -139,6 +172,21 @@ function PostProperty() {
       setSubmissionLoading(false);
     }
   };
+  const getPlaceholderText = () => {
+    if (formData.propertyType === "rawLand") {
+      return "Please provide a detailed description of your land, including its features, location advantages, potential uses, and any other relevant details. Please specify the size of the land in acres.";
+    }
+
+    if (formData.propertyType === "residential") {
+      return "Please specify the type of residential property (e.g., Apartment, Bungalow, Row House). Include details about any unique features not covered in the form.";
+    }
+
+    if (formData.propertyType === "commercial") {
+      return "Please specify the type of commercial property (e.g., Office Building, Retail Store, Warehouse). Include details about layout, amenities, and any other relevant features.";
+    }
+
+    return "Describe your property...";
+  };
   return (
     <main className="p-6 max-w-4xl mx-auto bg-gray-900 rounded-lg shadow-md mt-6">
       <h1 className="text-4xl font-semibold text-center text-white my-7">
@@ -162,11 +210,7 @@ function PostProperty() {
           <TextArea
             label="Description"
             name="description"
-            placeholder={
-              formData.propertyType === "rawLand"
-                ? "Please provide a detailed description of your land, including its features, location advantages, potential uses, and any other relevant details. Please specify the size of the land in acres."
-                : "Describe your property..."
-            }
+            placeholder={getPlaceholderText()}
             value={formData.description}
             onChange={handleFormSubmission}
           />
@@ -261,11 +305,7 @@ function PostProperty() {
             <CheckboxGroup
               label="Area Details"
               name="addAreaDetails"
-              options={[
-                { label: "Balcony", value: "balcony" },
-                { label: "Furnished", value: "furnished" },
-                { label: "Parking", value: "parking" },
-              ]}
+              options={conditionalOptionsAreaDetails}
               selectedOptions={formData.addAreaDetails}
               onChange={handleFormSubmission}
             />
@@ -274,41 +314,32 @@ function PostProperty() {
             <CheckboxGroup
               label="Amenities"
               name="amenities"
-              options={[
-                { label: "Power Backup", value: "powerBackup" },
-                { label: "High speed Eleveators", value: "lift" },
-                { label: "24x7 Security", value: "security" },
-                { label: "Water Supply", value: "waterSupply" },
-                { label: "Gymnasium", value: "gymnasium" },
-                { label: "Swimming Pool", value: "swimmingPool" },
-                { label: "Clubhouse", value: "clubhouse" },
-                { label: "Children's play Area", value: "garden" },
-                { label: "CCTV Camera Security", value: "cctvSecturity" },
-              ]}
+              options={filteredOptions}
               selectedOptions={formData.amenities}
               onChange={handleFormSubmission}
             />
           )}
-          {formData.propertyType !== "rawLand" && (
-            <div className="flex gap-4">
-              <NumberInput
-                label="Number of Baths"
-                name="baths"
-                value={formData.baths}
-                onChange={handleFormSubmission}
-                min="1"
-                max="12"
-              />
-              <NumberInput
-                label="Number of Beds"
-                name="beds"
-                value={formData.beds}
-                onChange={handleFormSubmission}
-                min="1"
-                max="12"
-              />
-            </div>
-          )}
+          {formData.propertyType !== "rawLand" &&
+            formData.propertyType !== "commercial" && (
+              <div className="flex gap-4">
+                <NumberInput
+                  label="Number of Baths"
+                  name="baths"
+                  value={formData.baths}
+                  onChange={handleFormSubmission}
+                  min="1"
+                  max="12"
+                />
+                <NumberInput
+                  label="Number of Beds"
+                  name="beds"
+                  value={formData.beds}
+                  onChange={handleFormSubmission}
+                  min="1"
+                  max="12"
+                />
+              </div>
+            )}
           {formData.priceDetails.additionalCharges && (
             <NumberInput
               label={`Maintenance Charge ${
