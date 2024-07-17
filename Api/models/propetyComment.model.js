@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const propertyCommentSchema = new mongoose.Schema({
   propertyId: {
     type: mongoose.Schema.Types.ObjectId,
