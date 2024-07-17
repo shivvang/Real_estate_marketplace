@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
@@ -7,53 +8,90 @@ function SearchPage() {
   const [searchFilters, setSearchFilters] = useState({
     searchTerm: "",
     propertyType: "all",
-    Parking: false,
+    transactionType: "all",
+    parking: false,
     furnished: false,
     sort: "createdAt",
     order: "desc",
+    powerBackup: false,
+    lift: false,
+    security: false,
+    waterSupply: false,
+    gymnasium: false,
+    swimmingPool: false,
+    clubhouse: false,
+    garden: false,
+    cctvSecurity: false,
   });
 
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchTermFromCurrentUrl = urlParams.get("searchTerm");
     const propertyTypeFromCurrentUrl = urlParams.get("propertyType");
-    const parkingFromCurrentUrl = urlParams.get("Parking");
+    const transactionTypeFromCurrentUrl = urlParams.get("transactionType");
+    const parkingFromCurrentUrl = urlParams.get("parking");
     const furnishedFromCurrentUrl = urlParams.get("furnished");
     const sortFromCurrentUrl = urlParams.get("sort");
     const orderFromCurrentUrl = urlParams.get("order");
+    const powerBackupFromCurrentUrl = urlParams.get("powerBackup");
+    const liftFromCurrentUrl = urlParams.get("lift");
+    const securityFromCurrentUrl = urlParams.get("security");
+    const waterSupplyFromCurrentUrl = urlParams.get("waterSupply");
+    const gymnasiumFromCurrentUrl = urlParams.get("gymnasium");
+    const swimmingPoolFromCurrentUrl = urlParams.get("swimmingPool");
+    const clubhouseFromCurrentUrl = urlParams.get("clubhouse");
+    const gardenFromCurrentUrl = urlParams.get("garden");
+    const cctvSecurityFromCurrentUrl = urlParams.get("cctvSecurity");
 
     if (
       searchTermFromCurrentUrl ||
       propertyTypeFromCurrentUrl ||
+      transactionTypeFromCurrentUrl ||
       parkingFromCurrentUrl ||
       furnishedFromCurrentUrl ||
       sortFromCurrentUrl ||
-      orderFromCurrentUrl
+      orderFromCurrentUrl ||
+      powerBackupFromCurrentUrl ||
+      liftFromCurrentUrl ||
+      securityFromCurrentUrl ||
+      waterSupplyFromCurrentUrl ||
+      gymnasiumFromCurrentUrl ||
+      swimmingPoolFromCurrentUrl ||
+      clubhouseFromCurrentUrl ||
+      gardenFromCurrentUrl ||
+      cctvSecurityFromCurrentUrl
     ) {
       setSearchFilters({
         searchTerm: searchTermFromCurrentUrl || "",
         propertyType: propertyTypeFromCurrentUrl || "all",
-        Parking: parkingFromCurrentUrl === "true" ? true : false,
-        furnished: furnishedFromCurrentUrl === "true" ? true : false,
+        transactionType: transactionTypeFromCurrentUrl || "all",
+        parking: parkingFromCurrentUrl === "true",
+        furnished: furnishedFromCurrentUrl === "true",
         sort: sortFromCurrentUrl || "createdAt",
         order: orderFromCurrentUrl || "desc",
+        powerBackup: powerBackupFromCurrentUrl === "true",
+        lift: liftFromCurrentUrl === "true",
+        security: securityFromCurrentUrl === "true",
+        waterSupply: waterSupplyFromCurrentUrl === "true",
+        gymnasium: gymnasiumFromCurrentUrl === "true",
+        swimmingPool: swimmingPoolFromCurrentUrl === "true",
+        clubhouse: clubhouseFromCurrentUrl === "true",
+        garden: gardenFromCurrentUrl === "true",
+        cctvSecurity: cctvSecurityFromCurrentUrl === "true",
       });
     }
 
     const fetchResults = async () => {
       try {
         setLoading(true);
-        setShowMore(false);
+
         const searchQuery = urlParams.toString();
         const res = await fetch(`/api/propertyListing/get?${searchQuery}`);
         const data = await res.json();
-        if (data.length > 8) {
-          setShowMore(true);
-        } else {
-          setShowMore(false);
-        }
+
         if (!data) {
           console.log("some error has occurred");
           setLoading(false);
@@ -69,55 +107,51 @@ function SearchPage() {
   }, [window.location.search]);
 
   const handlingChangesInInput = (e) => {
-    const { id, value, checked } = e.target;
+    const { id, value, type, checked } = e.target;
+    let newValue;
 
-    // Handle property type checkboxes like radio buttons
-    if (id === "all" || id === "rent" || id === "sale") {
-      setSearchFilters({ ...searchFilters, propertyType: id });
+    if (type === "checkbox") {
+      newValue = checked;
+    } else if (type === "radio") {
+      newValue = id;
+    } else {
+      newValue = value;
     }
 
-    // Handle other inputs
-    if (id === "searchTerm") {
-      setSearchFilters({ ...searchFilters, searchTerm: value });
-    }
-
-    if (id === "Parking" || id === "furnished") {
-      setSearchFilters({ ...searchFilters, [id]: checked });
-    }
-
-    if (id === "sort_order") {
-      const sort = value.split("_")[0] || "createdAt";
-      const order = value.split("_")[1] || "desc";
-      setSearchFilters({ ...searchFilters, sort, order });
-    }
+    setSearchFilters((prevFilters) => ({
+      ...prevFilters,
+      [id]: newValue,
+      ...(type === "radio" && { [e.target.name]: id }),
+    }));
   };
 
   const handleFormSubmission = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams();
-    urlParams.set("searchTerm", searchFilters.searchTerm);
-    urlParams.set("propertyType", searchFilters.propertyType);
-    urlParams.set("Parking", searchFilters.Parking);
-    urlParams.set("furnished", searchFilters.furnished);
-    urlParams.set("sort", searchFilters.sort);
-    urlParams.set("order", searchFilters.order);
+    Object.keys(searchFilters).forEach((key) => {
+      urlParams.set(key, searchFilters[key]);
+    });
 
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   };
 
-  const onShowMoreClick = async () => {
-    const NoOfestates = searchResults.length;
-    const startIndex = NoOfestates;
-    const urlParams = new URLSearchParams(location.search);
-    urlParams.set("startIndex", startIndex);
-    const searchQuery = urlParams.toString();
-    const res = await fetch(`/api/propertyListing/get?${searchQuery}`);
-    const data = await res.json();
-
-    setSearchResults(...searchResults, ...data);
-  };
-
+  const filteredAmenities = [
+    { label: "Power Backup", value: "powerBackup" },
+    { label: "High speed Elevators", value: "lift" },
+    { label: "24x7 Security", value: "security" },
+    { label: "Water Supply", value: "waterSupply" },
+    { label: "CCTV Camera Security", value: "cctvSecurity" },
+    ...(searchFilters.propertyType !== "commercial"
+      ? [
+          { label: "Gymnasium", value: "gymnasium" },
+          { label: "Swimming Pool", value: "swimmingPool" },
+          { label: "Clubhouse", value: "clubhouse" },
+          { label: "Children's play Area", value: "garden" },
+        ]
+      : []),
+  ];
+  console.log("search filters", searchFilters);
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen bg-gray-900 text-white w-full md:w-1/2 overflow-y-auto">
@@ -128,7 +162,7 @@ function SearchPage() {
             </label>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search by location, title, or description"
               id="searchTerm"
               className="border rounded-lg p-3 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={searchFilters.searchTerm}
@@ -191,117 +225,58 @@ function SearchPage() {
                 />
                 <span>Sell</span>
               </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="radio"
-                  id="rent"
-                  name="transactionType"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.transactionType === "rent"}
-                />
-                <span>Rent</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="radio"
-                  id="pg"
-                  name="transactionType"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.transactionType === "pg"}
-                />
-                <span>PG</span>
-              </label>
+              {searchFilters.propertyType !== "rawLand" && (
+                <>
+                  <label className="flex items-center gap-2 text-gray-300">
+                    <input
+                      type="radio"
+                      id="rent"
+                      name="transactionType"
+                      className="w-5 h-5"
+                      onChange={handlingChangesInInput}
+                      checked={searchFilters.transactionType === "rent"}
+                    />
+                    <span>Rent</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-gray-300">
+                    <input
+                      type="radio"
+                      id="pg"
+                      name="transactionType"
+                      className="w-5 h-5"
+                      onChange={handlingChangesInInput}
+                      checked={searchFilters.transactionType === "pg"}
+                    />
+                    <span>PG</span>
+                  </label>
+                </>
+              )}
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <label className="font-semibold text-gray-300">
-              Amenities Provided:
-            </label>
-            <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="powerBackup"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.powerBackup}
-                />
-                <span>Power Backup</span>
+          {searchFilters.propertyType !== "rawLand" && (
+            <div className="flex flex-col gap-4">
+              <label className="font-semibold text-gray-300">
+                Amenities Provided:
               </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="lift"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.lift}
-                />
-                <span>Lift</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="security"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.security}
-                />
-                <span>Security</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="waterSupply"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.waterSupply}
-                />
-                <span>Water Supply</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="gymnasium"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.gymnasium}
-                />
-                <span>Gymnasium</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="swimmingPool"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.swimmingPool}
-                />
-                <span>Swimming Pool</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="clubhouse"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.clubhouse}
-                />
-                <span>Clubhouse</span>
-              </label>
-              <label className="flex items-center gap-2 text-gray-300">
-                <input
-                  type="checkbox"
-                  id="garden"
-                  className="w-5 h-5"
-                  onChange={handlingChangesInInput}
-                  checked={searchFilters.garden}
-                />
-                <span>Garden</span>
-              </label>
+              <div className="flex flex-wrap gap-4">
+                {filteredAmenities.map((amenity) => (
+                  <label
+                    key={amenity.value}
+                    className="flex items-center gap-2 text-gray-300"
+                  >
+                    <input
+                      type="checkbox"
+                      id={amenity.value}
+                      className="w-5 h-5"
+                      onChange={handlingChangesInInput}
+                      checked={searchFilters[amenity.value]}
+                    />
+                    <span>{amenity.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           <div className="flex items-center gap-2">
             <label className="font-semibold text-gray-300">Sort</label>
             <select

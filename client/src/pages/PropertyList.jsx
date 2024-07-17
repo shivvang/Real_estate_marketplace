@@ -53,7 +53,7 @@ function PropertyList() {
   return (
     <div className="p-5 max-w-7xl mx-auto mt-10 bg-gray-800 rounded-lg shadow-md">
       <h1 className="text-3xl font-semibold text-center mb-8 text-blue-500">
-        Your Properties
+        Your Properties Ads
       </h1>
 
       {loading ? (

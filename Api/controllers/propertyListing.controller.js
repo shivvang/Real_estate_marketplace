@@ -60,12 +60,7 @@ export const deleteProperties = async (req, res, next) => {
   }
 
   if (req.user.id !== userCreatedProperty.userRefs) {
-    return next(
-      errorHandler(
-        401,
-        "cannot delete this cause youre not the one who made this"
-      )
-    );
+    return next(errorHandler(401, "cannot delete this"));
   }
   try {
     await PropertyListing.findByIdAndDelete(req.params.id);
@@ -163,34 +158,84 @@ export const getPropertiesData = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const startIndex = parseInt(req.query.startIndex) || 0;
 
-    let query = {};
+    let match = {};
 
-    if (req.query.furnished !== undefined && req.query.furnished !== "false") {
-      query.furnished = req.query.furnished === "true";
+    if (req.query.furnished === "true") {
+      match.furnished = true;
     }
 
-    if (req.query.Parking !== undefined && req.query.Parking !== "false") {
-      query.parking = req.query.Parking === "true";
+    if (req.query.parking === "true") {
+      match.parking = true;
+    }
+
+    if (req.query.powerBackup === "true") {
+      match["amenities.powerBackup"] = true;
+    }
+
+    if (req.query.lift === "true") {
+      match["amenities.lift"] = true;
+    }
+
+    if (req.query.security === "true") {
+      match["amenities.security"] = true;
+    }
+
+    if (req.query.waterSupply === "true") {
+      match["amenities.waterSupply"] = true;
+    }
+
+    if (req.query.gymnasium === "true") {
+      match["amenities.gymnasium"] = true;
+    }
+
+    if (req.query.swimmingPool === "true") {
+      match["amenities.swimmingPool"] = true;
+    }
+
+    if (req.query.clubhouse === "true") {
+      match["amenities.clubhouse"] = true;
+    }
+
+    if (req.query.garden === "true") {
+      match["amenities.garden"] = true;
+    }
+
+    if (req.query.cctvSecurity === "true") {
+      match["amenities.cctvSecurity"] = true;
     }
 
     let propertyType = req.query.propertyType;
 
-    if (propertyType === undefined || propertyType === "all") {
-      propertyType = { $in: ["sale", "rent"] };
-    } else {
-      query.propertyType = propertyType;
+    if (propertyType !== undefined && propertyType !== "all") {
+      match.propertyType = propertyType;
+    }
+
+    let transactionType = req.query.transactionType;
+
+    if (transactionType !== undefined && transactionType !== "all") {
+      match.transactionType = transactionType;
     }
 
     const searchTerm = req.query.searchTerm || "";
     const sort = req.query.sort || "createdAt";
-    const order = req.query.order || "desc";
+    const order = req.query.order === "asc" ? 1 : -1;
 
-    query.name = { $regex: searchTerm, $options: "i" };
+    if (searchTerm) {
+      match.$or = [
+        { propertyTitle: { $regex: searchTerm, $options: "i" } },
+        { description: { $regex: searchTerm, $options: "i" } },
+        { location: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
 
-    const dataReceived = await PropertyListing.find(query)
-      .sort({ [sort]: order })
-      .limit(limit)
-      .skip(startIndex);
+    const pipeline = [
+      { $match: match },
+      { $sort: { [sort]: order } },
+      { $skip: startIndex },
+      { $limit: limit },
+    ];
+
+    const dataReceived = await PropertyListing.aggregate(pipeline);
 
     return res.status(200).json(dataReceived);
   } catch (error) {

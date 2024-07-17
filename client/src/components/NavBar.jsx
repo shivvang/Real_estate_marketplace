@@ -28,56 +28,72 @@ function NavBar() {
   if (!currentUser) {
     return null; // Render nothing if the user is not authenticated
   }
+
+  const getRoleText = () => {
+    if (currentUser.role === "tenant") {
+      return "Looking for rental properties?";
+    } else if (currentUser.role === "buyer") {
+      return "Looking to buy?";
+    } else {
+      return "";
+    }
+  };
+
   console.log(currentUser.role);
   return (
     <header className="bg-gray-900 text-white">
-      <div className="container mx-auto flex justify-between items-center py-4 px-6">
-        <Link to="/" className="text-3xl font-bold tracking-wider">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center py-4 px-6 space-y-4 md:space-y-0">
+        <Link
+          to="/"
+          className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-wider"
+        >
           Home<span className="text-blue-500">Quest</span>
         </Link>
 
         <form
           onSubmit={handleFormSubmission}
-          className="relative w-full max-w-lg"
+          className="relative flex items-center w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
         >
           <input
             type="text"
-            placeholder="Search for properties, locations, and more"
-            className="w-full pl-4 pr-12 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white placeholder-gray-400"
+            placeholder="Search by location, title, or description"
+            className="flex-grow px-3 py-1 text-xs sm:text-sm md:text-base lg:text-lg rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button
             type="submit"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 p-2 rounded-full text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="absolute right-1.5 top-1/2 transform -translate-y-1/2 bg-blue-600 p-1.5 sm:p-2 rounded-full text-white text-xs sm:text-sm md:text-base hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <FaSearch className="text-lg" />
+            <FaSearch className="text-xs sm:text-sm md:text-base" />
           </button>
         </form>
 
-        <ul className="hidden md:flex items-center gap-6">
-          <li className="text-lg">
-            <Link to="/" className="hover:text-blue-500">
-              Home
-            </Link>
-          </li>
+        <ul className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
           {currentUser.role === "seller" && (
-            <li className="text-lg">
+            <li className="text-xs sm:text-sm md:text-base lg:text-lg">
               <Link to="/PropertyList" className="hover:text-blue-500">
-                PropertyList
+                My Property Ads
               </Link>
             </li>
           )}
-          <li className="text-lg">
+          <li className="text-xs sm:text-sm md:text-base lg:text-lg">
+            <Link to="/search" className="flex items-center">
+              <span className="ml-2 whitespace-nowrap">{getRoleText()}</span>
+            </Link>
+          </li>
+          <li className="text-xs sm:text-sm md:text-base lg:text-lg">
             <Link to="/profile" className="flex items-center">
               {currentUser ? (
                 <img
-                  className="rounded-full h-8 w-8 object-cover border-2 border-gray-300"
+                  className="rounded-full h-10 w-10 sm:h-8 sm:w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 object-cover border-2 border-gray-300"
                   src={currentUser.avatar}
                   alt="profile"
                 />
               ) : (
-                <span className="hover:text-blue-500">Sign In</span>
+                <span className="hover:text-blue-500 transition duration-300 ease-in-out">
+                  Sign In
+                </span>
               )}
             </Link>
           </li>
