@@ -16,6 +16,7 @@ import {
 import "swiper/css/bundle";
 import { useSelector } from "react-redux";
 import ContactOwner from "../components/ContactOwner";
+import PropertyDetail from "../components/userReview/PropertyDetail";
 
 function PropertyView() {
   Swipercore.use([Navigation]);
@@ -215,6 +216,13 @@ function PropertyView() {
             {contactOwner && <ContactOwner propertyData={propertyData} />}
           </div>
         </div>
+      )}
+
+      {propertyData && (
+        <PropertyDetail
+          propertyId={propertyData._id}
+          userId={currentUser._id}
+        />
       )}
     </main>
   );

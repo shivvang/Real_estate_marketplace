@@ -6,7 +6,7 @@ import connectDb from "./db/index.js";
 import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import propertyListing from "./routes/propertyListing.routes.js";
-import UserReview from "./models/userReview.model.js";
+import UserReview from "./routes/userReview.routes.js";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());

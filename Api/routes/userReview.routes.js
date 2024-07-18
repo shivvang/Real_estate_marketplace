@@ -3,10 +3,10 @@ import {
   getUserReview,
   postUserReview,
 } from "../controllers/userReview.controller.js";
-import { validateReview } from "../middleware/validateReview.js";
+//import { validateReview } from "../middleware/validateReview.js";
 
 const router = Router();
 
 router.post("/postReview", postUserReview);
-router.get("/getReview/:propertyId", validateReview, getUserReview);
+router.get("/getReview/:propertyId", getUserReview);
 export default router;

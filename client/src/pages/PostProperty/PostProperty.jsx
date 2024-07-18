@@ -166,7 +166,7 @@ function PostProperty() {
         setFormSubmissionError(data.message);
       }
 
-      navigate(`/propertyView/${data._id}`);
+      navigate(`/propertyView/${data.property._id}`);
     } catch (error) {
       setFormSubmissionError(error.message);
       setSubmissionLoading(false);
@@ -355,7 +355,7 @@ function PostProperty() {
             />
           )}
           <NumberInput
-            label={`Price Break-Up ${
+            label={`Starting Price  ${
               formData.transactionType === "rent" ||
               formData.transactionType === "pg"
                 ? "/Month"
@@ -382,15 +382,17 @@ function PostProperty() {
             />
           ) : null}
 
-          {formData.propertyType !== "rawLand" && (
-            <NumberInput
-              label="Carpet Area (in sq ft)"
-              name="carpetArea"
-              value={formData.carpetArea}
-              onChange={handleFormSubmission}
-              min="0"
-            />
-          )}
+          <NumberInput
+            label={`${
+              formData.propertyType === "rawLand"
+                ? "Land Area (in sq ft)"
+                : "Carpet Area (in sq ft)"
+            }`}
+            name="carpetArea"
+            value={formData.carpetArea}
+            onChange={handleFormSubmission}
+            min="0"
+          />
         </div>
       </form>
       <div className="flex flex-col items-center gap-6 p-6 bg-gray-900 rounded-lg shadow-lg">
