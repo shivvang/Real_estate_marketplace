@@ -2,9 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
+import { useLocation } from "react-router-dom";
 
 function SearchPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const bhk = params.get("bhk");
   const [searchFilters, setSearchFilters] = useState({
     searchTerm: "",
     propertyType: "all",
@@ -104,7 +108,7 @@ function SearchPage() {
       }
     };
     fetchResults();
-  }, [window.location.search]);
+  }, [location.search]);
 
   const handlingChangesInInput = (e) => {
     const { id, value, type, checked } = e.target;
@@ -123,6 +127,14 @@ function SearchPage() {
       [id]: newValue,
       ...(type === "radio" && { [e.target.name]: id }),
     }));
+    // i forgot to do this
+    if (e.target.id === "sort_order") {
+      const sort = e.target.value.split("_")[0] || "created_at";
+
+      const order = e.target.value.split("_")[1] || "desc";
+
+      setSearchFilters({ ...searchFilters, sort, order });
+    }
   };
 
   const handleFormSubmission = (e) => {
@@ -298,7 +310,7 @@ function SearchPage() {
       </div>
       <div className="flex-1 overflow-y-auto">
         <h1 className="text-3xl font-semibold p-3 text-gray-800 mt-5">
-          Results...
+          {bhk ? `Search Results for ${bhk} BHK` : ""}
         </h1>
         <div className="p-7 flex flex-wrap gap-4">
           {!loading && searchResults.length === 0 && (

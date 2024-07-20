@@ -155,11 +155,11 @@ function PostProperty() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData), // Ensure formData is sent correctly
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
-      console.log("data received from backend", data);
+
       setSubmissionLoading(false);
 
       if (data.success === false) {

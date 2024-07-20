@@ -153,6 +153,13 @@ export const getProperty = async (req, res, next) => {
   }
 };
 
+const normalizeSearchTerm = (term) => {
+  // Normalize spaces and handle cases without spaces
+  const spacedTerm = term.trim().replace(/\s+/g, " ").toLowerCase();
+  const termWithSpaces = spacedTerm.replace(/(\d+)([a-zA-Z]+)/g, "$1 $2"); // Add space between number and letters
+  return termWithSpaces;
+};
+
 export const getPropertiesData = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 9;
@@ -219,12 +226,16 @@ export const getPropertiesData = async (req, res, next) => {
     const searchTerm = req.query.searchTerm || "";
     const sort = req.query.sort || "createdAt";
     const order = req.query.order === "asc" ? 1 : -1;
+    console.log("sort", sort);
+    console.log("order", order);
+
+    const normalizedSearchTerm = normalizeSearchTerm(searchTerm);
 
     if (searchTerm) {
       match.$or = [
-        { propertyTitle: { $regex: searchTerm, $options: "i" } },
-        { description: { $regex: searchTerm, $options: "i" } },
-        { location: { $regex: searchTerm, $options: "i" } },
+        { propertyTitle: { $regex: normalizedSearchTerm, $options: "i" } },
+        { description: { $regex: normalizedSearchTerm, $options: "i" } },
+        { location: { $regex: normalizedSearchTerm, $options: "i" } },
       ];
     }
 

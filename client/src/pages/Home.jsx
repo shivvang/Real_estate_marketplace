@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Swipercore from "swiper";
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
+import BhkChoice from "../components/BhkChoice";
 Swipercore.use([Navigation]);
 function Home() {
   const [sellProperty, setSellProperty] = useState([]);
@@ -44,7 +46,7 @@ function Home() {
     <div className="bg-gray-900 text-white min-h-screen">
       <div className="flex flex-col gap-6 py-28 px-3 max-w-6xl mx-auto">
         <h1 className="text-gray-200 font-bold text-3xl lg:text-6xl">
-          If Homes Had Personalities, <br /> We'd Be The{" "}
+          If Homes Had Personalities, <br /> We&apos;d Be The{" "}
           <span className="text-blue-500">Matchmakers</span>
         </h1>
         <div className="text-gray-400 text-xs sm:text-sm">
@@ -81,7 +83,7 @@ function Home() {
               </h2>
               <Link
                 className="text-sm text-blue-500"
-                to={`/search?propertyType=sale`}
+                to={`/search?transactionType=sell`}
               >
                 Show More of These
               </Link>
@@ -105,7 +107,7 @@ function Home() {
               </h2>
               <Link
                 className="text-sm text-blue-500"
-                to={`/search?propertyType=rent`}
+                to={`/search?transactionType=rent`}
               >
                 Show More of These
               </Link>
@@ -129,7 +131,7 @@ function Home() {
               </h2>
               <Link
                 className="text-sm text-blue-500"
-                to={`/search?propertyType=pg`}
+                to={`/search?transactionType=pg`}
               >
                 Show More of These
               </Link>
@@ -142,6 +144,7 @@ function Home() {
           </div>
         )}
       </div>
+      <BhkChoice />
     </div>
   );
 }
