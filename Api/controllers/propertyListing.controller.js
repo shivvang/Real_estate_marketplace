@@ -160,6 +160,25 @@ const normalizeSearchTerm = (term) => {
   return termWithSpaces;
 };
 
+const parsePriceInput = (input) => {
+  if (!input) return null;
+
+  // Remove any non-numeric characters except the decimal point
+  const cleanInput = input.replace(/[^0-9.]/g, "");
+
+  // Convert to number
+  let number = parseFloat(cleanInput);
+
+  // Convert based on suffixes
+  if (input.toLowerCase().includes("cr")) {
+    number *= 10000000;
+  } else if (input.toLowerCase().includes("lakh")) {
+    number *= 100000;
+  }
+
+  return number;
+};
+
 export const getPropertiesData = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 9;
@@ -223,11 +242,14 @@ export const getPropertiesData = async (req, res, next) => {
       match.transactionType = transactionType;
     }
 
+    let ownershipType = req.query.ownershipType;
+    if (ownershipType !== undefined) {
+      match.ownershipType = ownershipType;
+    }
+
     const searchTerm = req.query.searchTerm || "";
     const sort = req.query.sort || "createdAt";
     const order = req.query.order === "asc" ? 1 : -1;
-    console.log("sort", sort);
-    console.log("order", order);
 
     const normalizedSearchTerm = normalizeSearchTerm(searchTerm);
 
@@ -237,6 +259,18 @@ export const getPropertiesData = async (req, res, next) => {
         { description: { $regex: normalizedSearchTerm, $options: "i" } },
         { location: { $regex: normalizedSearchTerm, $options: "i" } },
       ];
+    }
+
+    const { minPrice, maxPrice } = req.query;
+
+    if (minPrice || maxPrice) {
+      const min = parsePriceInput(minPrice);
+      const max = parsePriceInput(maxPrice);
+
+      match.priceBreakUp = {};
+
+      if (min !== null) match.priceBreakUp.$gte = min;
+      if (max !== null) match.priceBreakUp.$lte = max;
     }
 
     const pipeline = [

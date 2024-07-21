@@ -50,6 +50,29 @@ function PropertyView() {
     fetchData();
   }, [params.propertyId]);
 
+  const getTransactionTypeLabel = (transactionType) => {
+    switch (transactionType) {
+      case "rent":
+        return "Available for Rent";
+      case "sell":
+        return "Available for Sale";
+      case "pg":
+        return "Paying Guest Accommodation";
+      default:
+        return "Property";
+    }
+  };
+
+  const formatPriceInINR = (amount) => {
+    if (amount >= 10000000) {
+      return `₹ ${(amount / 10000000).toFixed(2)} Cr`;
+    } else if (amount >= 100000) {
+      return `₹ ${(amount / 100000).toFixed(2)} Lakh`;
+    } else {
+      return `₹ ${amount.toLocaleString("en-IN")}`;
+    }
+  };
+
   return (
     <main>
       {loading && (
@@ -92,8 +115,8 @@ function PropertyView() {
           )}
           <div className="flex flex-col max-w-4xl mx-auto p-6 my-7 gap-6 bg-gray-800 rounded-lg shadow-lg">
             <p className="text-3xl font-bold text-white">
-              {propertyData.propertyTitle} - $
-              {propertyData.priceBreakUp.toLocaleString("en-US")}
+              {propertyData.propertyTitle} - Starting From{" "}
+              {formatPriceInINR(propertyData.priceBreakUp)}
               {(propertyData.transactionType === "rent" ||
                 propertyData.transactionType === "pg") &&
                 " / month"}
@@ -104,9 +127,7 @@ function PropertyView() {
             </p>
             <div>
               <p className="bg-blue-600 w-full max-w-[200px] text-white text-center p-2 rounded-md shadow-md">
-                {propertyData.transactionType === "rent"
-                  ? "For Rent"
-                  : "For Sale"}
+                {getTransactionTypeLabel(propertyData.transactionType)}
               </p>
             </div>
             <p className="text-gray-300">
@@ -173,14 +194,14 @@ function PropertyView() {
               </ul>
             </div>
             <p className="text-gray-300">
-              <strong>Landmark:</strong> {propertyData.landmark}
+              <strong>Location Advantage:</strong> {propertyData.landmark}
             </p>
             <p className="text-gray-300">
               <strong>Carpet Area:</strong> {propertyData.carpetArea} sq ft
             </p>
             {propertyData.maintenanceCharge > 0 && (
               <p className="text-gray-300">
-                <strong>Maintenance Charge:</strong> - $
+                <strong>Maintenance Charge:</strong> - ₹
                 {propertyData.maintenanceCharge}
                 {(propertyData.transactionType === "rent" ||
                   propertyData.transactionType === "pg") &&

@@ -3,11 +3,26 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { MdLocationOn } from "react-icons/md";
+import { FaBath, FaBed } from "react-icons/fa";
+
 function PropertyCard({ propertyData }) {
   const isResidentialOrCommercial = ["residential", "commercial"].includes(
     propertyData.propertyType
   );
   const isRawLand = propertyData.propertyType === "rawLand";
+  const ownershipLabel =
+    propertyData.ownershipType === "ownedbyme" ? "Owned by Me" : "Broker";
+
+  const formatPriceInINR = (amount) => {
+    if (amount >= 10000000) {
+      return `₹ ${(amount / 10000000).toFixed(2)} Cr`;
+    } else if (amount >= 100000) {
+      return `₹ ${(amount / 100000).toFixed(2)} Lakh`;
+    } else {
+      return `₹ ${amount.toLocaleString("en-IN")}`;
+    }
+  };
+
   return (
     <div className="bg-gray-800 shadow-md hover:shadow-lg transition-shadow overflow-hidden rounded-lg w-full sm:w-[330px]">
       <Link to={`/propertyView/${propertyData._id}`}>
@@ -31,28 +46,31 @@ function PropertyCard({ propertyData }) {
           {propertyData.description}
         </p>
         <p className="text-blue-500 mt-2 font-semibold">
-          ${propertyData.priceBreakUp.toLocaleString("en-US")}
+          Base price - {formatPriceInINR(propertyData.priceBreakUp)}
           {propertyData.transactionType === "rent" && "/Month"}
         </p>
-        {isResidentialOrCommercial && (
-          <div className="text-gray-400 flex gap-4">
-            <div className="font-bold text-xs">
-              {propertyData.beds > 1
-                ? `${propertyData.beds} beds`
-                : `${propertyData.beds} bed`}
-            </div>
-            <div className="font-bold text-xs">
-              {propertyData.baths > 1
-                ? `${propertyData.baths} baths`
-                : `${propertyData.baths} bath`}
-            </div>
+        <div className="text-gray-400 flex gap-4 items-center">
+          {isResidentialOrCommercial && (
+            <>
+              <div className="font-bold text-xs flex items-center gap-1">
+                <FaBed className="inline-block" />
+                {propertyData.beds > 1
+                  ? `${propertyData.beds} beds`
+                  : `${propertyData.beds} bed`}
+              </div>
+              <div className="font-bold text-xs flex items-center gap-1">
+                <FaBath className="inline-block" />
+                {propertyData.baths > 1
+                  ? `${propertyData.baths} baths`
+                  : `${propertyData.baths} bath`}
+              </div>
+            </>
+          )}
+          {isRawLand && <div className="font-bold text-xs">Raw Land</div>}
+          <div className="font-bold text-xs text-green-500">
+            {ownershipLabel}
           </div>
-        )}
-        {isRawLand && (
-          <div className="text-gray-400">
-            <p className="font-bold text-xs">Raw Land</p>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

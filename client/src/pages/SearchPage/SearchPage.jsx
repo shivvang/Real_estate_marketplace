@@ -1,14 +1,16 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PropertyCard from "../components/PropertyCard";
+import PropertyCard from "../../components/PropertyCard";
 import { useLocation } from "react-router-dom";
+import BudgetSlider from "./BudgetSlider";
 
 function SearchPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const bhk = params.get("bhk");
+
   const [searchFilters, setSearchFilters] = useState({
     searchTerm: "",
     propertyType: "all",
@@ -26,6 +28,8 @@ function SearchPage() {
     clubhouse: false,
     garden: false,
     cctvSecurity: false,
+    minPrice: 0,
+    maxPrice: 1000000000,
   });
 
   const [searchResults, setSearchResults] = useState([]);
@@ -289,6 +293,10 @@ function SearchPage() {
               </div>
             </div>
           )}
+          <BudgetSlider
+            searchFilters={searchFilters}
+            setSearchFilters={setSearchFilters}
+          />
           <div className="flex items-center gap-2">
             <label className="font-semibold text-gray-300">Sort</label>
             <select

@@ -6,6 +6,9 @@ import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
 import BhkChoice from "../components/BhkChoice";
+import BudgetChoice from "../components/BudgetChoice ";
+import PropertiesPostedBy from "../components/PropertiesPostedBy ";
+
 Swipercore.use([Navigation]);
 function Home() {
   const [sellProperty, setSellProperty] = useState([]);
@@ -56,7 +59,7 @@ function Home() {
       </div>
 
       {/* Carousel for Featured Properties */}
-      <div className="max-w-6xl mx-auto p-3">
+      <div className="max-w-6xl mx-auto p-3 mb-10">
         <Swiper navigation>
           {featuredProperties.length > 0 &&
             featuredProperties.map((property) => (
@@ -73,6 +76,7 @@ function Home() {
         </Swiper>
       </div>
 
+      <BudgetChoice />
       {/* Section for Sale Properties */}
       <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
         {sellProperty.length > 0 && (
@@ -144,7 +148,10 @@ function Home() {
           </div>
         )}
       </div>
-      <BhkChoice />
+      <div className="flex flex-col md:flex-row gap-8 p-6 bg-gray-900 rounded-lg shadow-lg">
+        <BhkChoice />
+        <PropertiesPostedBy />
+      </div>
     </div>
   );
 }

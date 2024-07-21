@@ -223,9 +223,9 @@ function PostProperty() {
               onChange={handleFormSubmission}
             />
             <TextInput
-              label="Landmark"
+              label="Location Advantage"
               name="landmark"
-              placeholder="Enter Landmark"
+              placeholder="Enter Location Advantage"
               value={formData.landmark}
               onChange={handleFormSubmission}
             />

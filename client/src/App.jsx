@@ -11,10 +11,11 @@ import PrivateRoute from "./components/PrivateRoute";
 import PropertyList from "./pages/PropertyList";
 
 import PropertyView from "./pages/PropertyView";
-import SearchPage from "./pages/SearchPage";
+
 import PostProperty from "./pages/PostProperty/PostProperty";
 import UpdateProperty from "./pages/UpdateProperty/UpdateProperty";
 import SignIn from "./pages/SignIn/SignIn";
+import SearchPage from "./pages/SearchPage/SearchPage";
 
 function App() {
   return (
