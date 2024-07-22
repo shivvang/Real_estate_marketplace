@@ -153,30 +153,39 @@ export const getProperty = async (req, res, next) => {
   }
 };
 
+//Normalized Search Term: Normalize the cleaned search term that doesn't contain the price ,space ,uppercase stuff.
 const normalizeSearchTerm = (term) => {
-  // Normalize spaces and handle cases without spaces
   const spacedTerm = term.trim().replace(/\s+/g, " ").toLowerCase();
-  const termWithSpaces = spacedTerm.replace(/(\d+)([a-zA-Z]+)/g, "$1 $2"); // Add space between number and letters
+  const termWithSpaces = spacedTerm.replace(/(\d+)([a-zA-Z]+)/g, "$1 $2");
   return termWithSpaces;
 };
 
+//This  is designed to take a price input string (like "2cr" or "50 lakh"), clean it, and convert it into a numeric value.
 const parsePriceInput = (input) => {
   if (!input) return null;
-
-  // Remove any non-numeric characters except the decimal point
   const cleanInput = input.replace(/[^0-9.]/g, "");
-
-  // Convert to number
   let number = parseFloat(cleanInput);
-
-  // Convert based on suffixes
   if (input.toLowerCase().includes("cr")) {
     number *= 10000000;
   } else if (input.toLowerCase().includes("lakh")) {
     number *= 100000;
   }
+  return isNaN(number) ? null : number;
+};
 
-  return number;
+// designed to take a full search term that might include a price component (like "3cr apartment in Mumbai") and extract the price part of the search term.
+const extractPriceFromSearchTerm = (searchTerm) => {
+  const pricePattern = /(\d+(\.\d+)?\s*(cr|lakh))/i;
+  const match = searchTerm.match(pricePattern);
+  if (match) {
+    return parsePriceInput(match[0]);
+  }
+  return null;
+};
+
+//o remove any price-related components from a search term string
+const removePriceComponentFromSearchTerm = (searchTerm) => {
+  return searchTerm.replace(/(\d+(\.\d+)?\s*(cr|lakh))/i, "").trim();
 };
 
 export const getPropertiesData = async (req, res, next) => {
@@ -186,64 +195,37 @@ export const getPropertiesData = async (req, res, next) => {
 
     let match = {};
 
-    if (req.query.furnished === "true") {
-      match.furnished = true;
-    }
+    const amenities = [
+      "furnished",
+      "parking",
+      "powerBackup",
+      "lift",
+      "security",
+      "waterSupply",
+      "gymnasium",
+      "swimmingPool",
+      "clubhouse",
+      "garden",
+      "cctvSecurity",
+    ];
+    amenities.forEach((amenity) => {
+      if (req.query[amenity] === "true") {
+        match[`amenities.${amenity}`] = true;
+      }
+    });
 
-    if (req.query.parking === "true") {
-      match.parking = true;
-    }
-
-    if (req.query.powerBackup === "true") {
-      match["amenities.powerBackup"] = true;
-    }
-
-    if (req.query.lift === "true") {
-      match["amenities.lift"] = true;
-    }
-
-    if (req.query.security === "true") {
-      match["amenities.security"] = true;
-    }
-
-    if (req.query.waterSupply === "true") {
-      match["amenities.waterSupply"] = true;
-    }
-
-    if (req.query.gymnasium === "true") {
-      match["amenities.gymnasium"] = true;
-    }
-
-    if (req.query.swimmingPool === "true") {
-      match["amenities.swimmingPool"] = true;
-    }
-
-    if (req.query.clubhouse === "true") {
-      match["amenities.clubhouse"] = true;
-    }
-
-    if (req.query.garden === "true") {
-      match["amenities.garden"] = true;
-    }
-
-    if (req.query.cctvSecurity === "true") {
-      match["amenities.cctvSecurity"] = true;
-    }
-
-    let propertyType = req.query.propertyType;
-
-    if (propertyType !== undefined && propertyType !== "all") {
+    const propertyType = req.query.propertyType;
+    if (propertyType && propertyType !== "all") {
       match.propertyType = propertyType;
     }
 
-    let transactionType = req.query.transactionType;
-
-    if (transactionType !== undefined && transactionType !== "all") {
+    const transactionType = req.query.transactionType;
+    if (transactionType && transactionType !== "all") {
       match.transactionType = transactionType;
     }
 
-    let ownershipType = req.query.ownershipType;
-    if (ownershipType !== undefined) {
+    const ownershipType = req.query.ownershipType;
+    if (ownershipType) {
       match.ownershipType = ownershipType;
     }
 
@@ -251,9 +233,15 @@ export const getPropertiesData = async (req, res, next) => {
     const sort = req.query.sort || "createdAt";
     const order = req.query.order === "asc" ? 1 : -1;
 
-    const normalizedSearchTerm = normalizeSearchTerm(searchTerm);
+    let price = extractPriceFromSearchTerm(searchTerm);
+    if (price !== null) {
+      match.priceBreakUp = { $gte: price };
+    }
 
-    if (searchTerm) {
+    const cleanedSearchTerm = removePriceComponentFromSearchTerm(searchTerm);
+    const normalizedSearchTerm = normalizeSearchTerm(cleanedSearchTerm);
+
+    if (normalizedSearchTerm) {
       match.$or = [
         { propertyTitle: { $regex: normalizedSearchTerm, $options: "i" } },
         { description: { $regex: normalizedSearchTerm, $options: "i" } },
@@ -267,12 +255,12 @@ export const getPropertiesData = async (req, res, next) => {
       const min = parsePriceInput(minPrice);
       const max = parsePriceInput(maxPrice);
 
-      match.priceBreakUp = {};
+      if (!match.priceBreakUp) match.priceBreakUp = {};
 
       if (min !== null) match.priceBreakUp.$gte = min;
       if (max !== null) match.priceBreakUp.$lte = max;
     }
-
+    //search term containing the price component is being used to match fields like propertyTitle, description, and location,
     const pipeline = [
       { $match: match },
       { $sort: { [sort]: order } },
