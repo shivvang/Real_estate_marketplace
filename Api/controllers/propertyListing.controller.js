@@ -195,6 +195,13 @@ export const getPropertiesData = async (req, res, next) => {
 
     let match = {};
 
+    const addAreaDetails = ["furnished", "balcony", "parking"];
+    addAreaDetails.forEach((areadDetail) => {
+      if (req.query[areadDetail] === "true") {
+        match[`addAreaDetails.${areadDetail}`] = true;
+      }
+    });
+
     const amenities = [
       "furnished",
       "parking",
@@ -267,6 +274,8 @@ export const getPropertiesData = async (req, res, next) => {
       { $skip: startIndex },
       { $limit: limit },
     ];
+
+    //console.log("Query match object:", JSON.stringify(match, null, 2));
 
     const dataReceived = await PropertyListing.aggregate(pipeline);
 

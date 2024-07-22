@@ -5,17 +5,14 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { FaRupeeSign } from "react-icons/fa";
 
-const BudgetSlider = ({ searchFilters, setSearchFilters }) => {
-  const [minPrice, setMinPrice] = useState(searchFilters.minPrice);
-  const [maxPrice, setMaxPrice] = useState(searchFilters.maxPrice);
+const BudgetSlider = ({ minPrice, maxPrice, setSearchFilters }) => {
+  const [localMinPrice, setLocalMinPrice] = useState(minPrice);
+  const [localMaxPrice, setLocalMaxPrice] = useState(maxPrice);
 
   useEffect(() => {
-    setSearchFilters((prevFilters) => ({
-      ...prevFilters,
-      minPrice: minPrice,
-      maxPrice: maxPrice,
-    }));
-  }, [minPrice, maxPrice, setSearchFilters]);
+    setLocalMinPrice(minPrice);
+    setLocalMaxPrice(maxPrice);
+  }, [minPrice, maxPrice]);
 
   const formatPrice = (value) => {
     if (value === undefined) {
@@ -33,18 +30,15 @@ const BudgetSlider = ({ searchFilters, setSearchFilters }) => {
   };
 
   const handleSliderChange = (values) => {
-    setMinPrice(values[0]);
-    setMaxPrice(values[1]);
+    setLocalMinPrice(values[0]);
+    setLocalMaxPrice(values[1]);
+    setSearchFilters(values[0], values[1]);
   };
 
   const handleClear = () => {
-    setMinPrice(0);
-    setMaxPrice(1000000000);
-    setSearchFilters((prevFilters) => ({
-      ...prevFilters,
-      minPrice: 0,
-      maxPrice: 1000000000,
-    }));
+    setLocalMinPrice(0);
+    setLocalMaxPrice(1000000000);
+    setSearchFilters(0, 1000000000);
   };
 
   return (
@@ -57,15 +51,15 @@ const BudgetSlider = ({ searchFilters, setSearchFilters }) => {
       </div>
       <div className="mb-4">
         <div className="flex justify-between text-sm">
-          <span>{formatPrice(minPrice)}</span>
-          <span>{formatPrice(maxPrice)}</span>
+          <span>{formatPrice(localMinPrice)}</span>
+          <span>{formatPrice(localMaxPrice)}</span>
         </div>
         <Slider
           range
           min={0}
           max={1000000000}
           step={1000000}
-          value={[minPrice, maxPrice]}
+          value={[localMinPrice, localMaxPrice]}
           onChange={handleSliderChange}
         />
       </div>
@@ -73,13 +67,13 @@ const BudgetSlider = ({ searchFilters, setSearchFilters }) => {
         <div className="flex flex-col">
           <span className="text-sm text-gray-400">Min Budget</span>
           <span className="text-lg font-semibold">
-            <FaRupeeSign /> {formatPrice(minPrice)}
+            <FaRupeeSign /> {formatPrice(localMinPrice)}
           </span>
         </div>
         <div className="flex flex-col">
           <span className="text-sm text-gray-400">Max Budget</span>
           <span className="text-lg font-semibold">
-            <FaRupeeSign /> {formatPrice(maxPrice)}
+            <FaRupeeSign /> {formatPrice(localMaxPrice)}
           </span>
         </div>
       </div>
