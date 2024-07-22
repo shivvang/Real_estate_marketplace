@@ -1,49 +1,62 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Swipercore from "swiper";
 import { Navigation } from "swiper/modules";
+import SwiperCore from "swiper";
+import "swiper/css/bundle";
 import { Link } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
 import BhkChoice from "../components/BhkChoice";
 import BudgetChoice from "../components/BudgetChoice ";
 import PropertiesPostedBy from "../components/PropertiesPostedBy ";
+import Loading from "../components/Loading";
 
-Swipercore.use([Navigation]);
+SwiperCore.use([Navigation]);
 function Home() {
   const [sellProperty, setSellProperty] = useState([]);
   const [rentalProperty, setRentalProperty] = useState([]);
   const [pgProperty, setPgProperty] = useState([]);
   const [featuredProperties, setFeaturedProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchProperties = useCallback(async (type, setter) => {
+    try {
+      const res = await fetch(
+        `/api/propertyListing/get?transactionType=${type}&limit=5`
+      );
+      const data = await res.json();
+      if (data) setter(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  const fetchFeaturedProperties = useCallback(async () => {
+    try {
+      const res = await fetch("/api/propertyListing/get?limit=5");
+      const data = await res.json();
+      if (data) setFeaturedProperties(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchProperties = async (type, setter) => {
-      try {
-        const res = await fetch(
-          `/api/propertyListing/get?transactionType=${type}&limit=5`
-        );
-        const data = await res.json();
-        if (data) setter(data);
-      } catch (error) {
-        console.log(error);
-      }
+    const fetchAllProperties = async () => {
+      setIsLoading(true);
+      await fetchProperties("sell", setSellProperty);
+      await fetchProperties("rent", setRentalProperty);
+      await fetchProperties("pg", setPgProperty);
+      await fetchFeaturedProperties();
+      setIsLoading(false);
     };
 
-    const fetchFeaturedProperties = async () => {
-      try {
-        const res = await fetch("/api/propertyListing/get?limit=5");
-        const data = await res.json();
-        if (data) setFeaturedProperties(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    fetchAllProperties();
+  }, [fetchProperties, fetchFeaturedProperties]);
 
-    fetchProperties("sell", setSellProperty);
-    fetchProperties("rent", setRentalProperty);
-    fetchProperties("pg", setPgProperty);
-    fetchFeaturedProperties();
-  }, []);
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="bg-gray-900 text-white min-h-screen">

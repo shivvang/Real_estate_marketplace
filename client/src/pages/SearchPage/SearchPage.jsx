@@ -167,7 +167,7 @@ function SearchPage() {
         ]
       : []),
   ];
-  console.log("search filters", searchFilters);
+
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen bg-gray-900 text-white w-full md:w-1/2 overflow-y-auto">
