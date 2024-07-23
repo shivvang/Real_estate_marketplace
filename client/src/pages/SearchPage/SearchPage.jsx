@@ -1,8 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useReducer } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PropertyCard from "../../components/PropertyCard";
-import { useLocation } from "react-router-dom";
 import BudgetSlider from "./BudgetSlider";
 
 const initialState = {
@@ -65,93 +64,77 @@ const reducer = (state, action) => {
 function SearchPage() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchTermFromCurrentUrl = urlParams.get("searchTerm");
-    const propertyTypeFromCurrentUrl = urlParams.get("propertyType");
-    const transactionTypeFromCurrentUrl = urlParams.get("transactionType");
-    const parkingFromCurrentUrl = urlParams.get("parking");
-    const balconyFromCurrentUrl = urlParams.get("balcony");
-    const furnishedFromCurrentUrl = urlParams.get("furnished");
-    const sortFromCurrentUrl = urlParams.get("sort");
-    const orderFromCurrentUrl = urlParams.get("order");
-    const powerBackupFromCurrentUrl = urlParams.get("powerBackup");
-    const liftFromCurrentUrl = urlParams.get("lift");
-    const securityFromCurrentUrl = urlParams.get("security");
-    const waterSupplyFromCurrentUrl = urlParams.get("waterSupply");
-    const gymnasiumFromCurrentUrl = urlParams.get("gymnasium");
-    const swimmingPoolFromCurrentUrl = urlParams.get("swimmingPool");
-    const clubhouseFromCurrentUrl = urlParams.get("clubhouse");
-    const gardenFromCurrentUrl = urlParams.get("garden");
-    const cctvSecurityFromCurrentUrl = urlParams.get("cctvSecurity");
+    const urlParams = new URLSearchParams(location.search);
+    const storedFilters =
+      JSON.parse(localStorage.getItem("searchFilters")) || {};
 
-    if (
-      searchTermFromCurrentUrl ||
-      propertyTypeFromCurrentUrl ||
-      transactionTypeFromCurrentUrl ||
-      parkingFromCurrentUrl ||
-      furnishedFromCurrentUrl ||
-      balconyFromCurrentUrl ||
-      sortFromCurrentUrl ||
-      orderFromCurrentUrl ||
-      powerBackupFromCurrentUrl ||
-      liftFromCurrentUrl ||
-      securityFromCurrentUrl ||
-      waterSupplyFromCurrentUrl ||
-      gymnasiumFromCurrentUrl ||
-      swimmingPoolFromCurrentUrl ||
-      clubhouseFromCurrentUrl ||
-      gardenFromCurrentUrl ||
-      cctvSecurityFromCurrentUrl
-    ) {
-      dispatch({
-        type: actionTypes.SET_SEARCH_FILTERS,
-        payload: {
-          searchTerm: searchTermFromCurrentUrl || "",
-          propertyType: propertyTypeFromCurrentUrl || "all",
-          transactionType: transactionTypeFromCurrentUrl || "all",
-          balcony: balconyFromCurrentUrl === "true",
-          parking: parkingFromCurrentUrl === "true",
-          furnished: furnishedFromCurrentUrl === "true",
-          sort: sortFromCurrentUrl || "createdAt",
-          order: orderFromCurrentUrl || "desc",
-          powerBackup: powerBackupFromCurrentUrl === "true",
-          lift: liftFromCurrentUrl === "true",
-          security: securityFromCurrentUrl === "true",
-          waterSupply: waterSupplyFromCurrentUrl === "true",
-          gymnasium: gymnasiumFromCurrentUrl === "true",
-          swimmingPool: swimmingPoolFromCurrentUrl === "true",
-          clubhouse: clubhouseFromCurrentUrl === "true",
-          garden: gardenFromCurrentUrl === "true",
-          cctvSecurity: cctvSecurityFromCurrentUrl === "true",
-        },
-      });
-    }
-
-    const fetchResults = async () => {
-      try {
-        dispatch({ type: actionTypes.SET_LOADING, payload: true });
-
-        const searchQuery = urlParams.toString();
-        const res = await fetch(`/api/propertyListing/get?${searchQuery}`);
-        const data = await res.json();
-
-        if (!data) {
-          console.log("some error has occurred");
-          dispatch({ type: actionTypes.SET_LOADING, payload: false });
-        }
-        dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: data });
-        dispatch({ type: actionTypes.SET_LOADING, payload: false });
-      } catch (error) {
-        console.log("error while fetching properties from data", error);
-        dispatch({ type: actionTypes.SET_LOADING, payload: false });
-      }
+    const urlFilters = {
+      searchTerm: urlParams.get("searchTerm") || storedFilters.searchTerm || "",
+      propertyType:
+        urlParams.get("propertyType") || storedFilters.propertyType || "all",
+      transactionType:
+        urlParams.get("transactionType") ||
+        storedFilters.transactionType ||
+        "all",
+      balcony:
+        urlParams.get("balcony") === "true" || storedFilters.balcony || false,
+      parking:
+        urlParams.get("parking") === "true" || storedFilters.parking || false,
+      furnished:
+        urlParams.get("furnished") === "true" ||
+        storedFilters.furnished ||
+        false,
+      sort: urlParams.get("sort") || storedFilters.sort || "createdAt",
+      order: urlParams.get("order") || storedFilters.order || "desc",
+      powerBackup:
+        urlParams.get("powerBackup") === "true" ||
+        storedFilters.powerBackup ||
+        false,
+      lift: urlParams.get("lift") === "true" || storedFilters.lift || false,
+      security:
+        urlParams.get("security") === "true" || storedFilters.security || false,
+      waterSupply:
+        urlParams.get("waterSupply") === "true" ||
+        storedFilters.waterSupply ||
+        false,
+      gymnasium:
+        urlParams.get("gymnasium") === "true" ||
+        storedFilters.gymnasium ||
+        false,
+      swimmingPool:
+        urlParams.get("swimmingPool") === "true" ||
+        storedFilters.swimmingPool ||
+        false,
+      clubhouse:
+        urlParams.get("clubhouse") === "true" ||
+        storedFilters.clubhouse ||
+        false,
+      garden:
+        urlParams.get("garden") === "true" || storedFilters.garden || false,
+      cctvSecurity:
+        urlParams.get("cctvSecurity") === "true" ||
+        storedFilters.cctvSecurity ||
+        false,
+      minPrice:
+        parseInt(urlParams.get("minPrice"), 10) || storedFilters.minPrice || 0,
+      maxPrice:
+        parseInt(urlParams.get("maxPrice"), 10) ||
+        storedFilters.maxPrice ||
+        1000000000,
     };
-    fetchResults();
+
+    dispatch({
+      type: actionTypes.SET_SEARCH_FILTERS,
+      payload: urlFilters,
+    });
   }, [location.search]);
+
+  useEffect(() => {
+    localStorage.setItem("searchFilters", JSON.stringify(state.searchFilters));
+  }, [state.searchFilters]);
 
   const handlingChangesInInput = (e) => {
     const { id, value, type, checked } = e.target;
@@ -173,12 +156,11 @@ function SearchPage() {
       },
     });
 
-    if (e.target.id === "sort_order") {
-      const sort = e.target.value.split("_")[0] || "created_at";
-      const order = e.target.value.split("_")[1] || "desc";
+    if (id === "sort_order") {
+      const [sort, order] = value.split("_");
       dispatch({
         type: actionTypes.SET_SEARCH_FILTERS,
-        payload: { sort, order },
+        payload: { sort: sort || "createdAt", order: order || "desc" },
       });
     }
   };
@@ -190,8 +172,7 @@ function SearchPage() {
       urlParams.set(key, state.searchFilters[key]);
     });
 
-    const searchQuery = urlParams.toString();
-    navigate(`/search?${searchQuery}`);
+    navigate(`/search?${urlParams.toString()}`);
   };
 
   const filteredAmenities = [
@@ -222,6 +203,24 @@ function SearchPage() {
       )
   );
 
+  useEffect(() => {
+    // Fetch data whenever search filters change
+    const fetchData = async () => {
+      dispatch({ type: actionTypes.SET_LOADING, payload: true });
+
+      const urlParams = new URLSearchParams(state.searchFilters);
+      const response = await fetch(
+        `/api/propertyListing/get?${urlParams.toString()}`
+      );
+      const data = await response.json();
+
+      dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: data });
+      dispatch({ type: actionTypes.SET_LOADING, payload: false });
+    };
+
+    fetchData();
+  }, [state.searchFilters]);
+  console.log("exploration", JSON.parse(localStorage.getItem("searchFilters")));
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen bg-gray-900 text-white w-full md:w-1/2 overflow-y-auto">

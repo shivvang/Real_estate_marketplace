@@ -39,7 +39,6 @@ function NavBar() {
     }
   };
 
-  console.log(currentUser.role);
   return (
     <header className="bg-gray-900 text-white">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center py-4 px-6 space-y-4 md:space-y-0">

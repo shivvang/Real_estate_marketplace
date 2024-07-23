@@ -7,10 +7,14 @@ import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import RoleSelection from "./RoleSelection";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function Oauth({ dontDispalythisInSignIn }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [role, setRole] = useState("buyer");
+
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -32,10 +36,14 @@ function Oauth({ dontDispalythisInSignIn }) {
 
       const data = await res.json();
 
-      dispatch(signInSuccess(data));
-      navigate("/");
+      if (res.ok && data) {
+        dispatch(signInSuccess(data));
+        navigate("/");
+      } else {
+        throw new Error(data.message || "Failed to sign in with Google.");
+      }
     } catch (error) {
-      console.log("could not sign in", error.message);
+      toast.error(error.message || "An unexpected error occurred.");
     }
   };
 
@@ -52,7 +60,6 @@ function Oauth({ dontDispalythisInSignIn }) {
           uniqueKey="oauth"
         />
       )}
-
       <button
         onClick={handleGoogleClick}
         type="button"
@@ -82,6 +89,7 @@ function Oauth({ dontDispalythisInSignIn }) {
         </svg>
         Continue with Google
       </button>
+      <ToastContainer />
     </div>
   );
 }

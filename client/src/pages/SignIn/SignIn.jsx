@@ -13,23 +13,22 @@ import "react-toastify/dist/ReactToastify.css";
 import { validateSignInData } from "./validateSignInData";
 
 function SignIn() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [e.target.id]: e.target.value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateSignInData(formData);
     if (Object.keys(errors).length > 0) {
-      // Displaying errors using toast notifications
       Object.values(errors).forEach((error) => {
         toast.error(error);
       });
@@ -48,14 +47,15 @@ function SignIn() {
       const data = await res.json();
       if (!data._id) {
         dispatch(signInFailed(data.message));
+        toast.error(data.message); // Use toast to show API error
       } else {
         dispatch(signInSuccess(data));
-
-        // Navigate to the home page
+        toast.success("Sign in successful!"); // Success message
         navigate("/");
       }
     } catch (error) {
       dispatch(signInFailed(error.message));
+      toast.error("An error occurred: " + error.message); // Use toast to show network error
     }
   };
 
@@ -70,6 +70,7 @@ function SignIn() {
           placeholder="Email"
           className="border-2 border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-800 text-white placeholder-gray-400"
           id="email"
+          value={formData.email}
           onChange={handleChange}
         />
         <input
@@ -77,9 +78,9 @@ function SignIn() {
           placeholder="Password"
           className="border-2 border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-800 text-white placeholder-gray-400"
           id="password"
+          value={formData.password}
           onChange={handleChange}
         />
-
         <button
           disabled={loading}
           type="submit"
@@ -90,9 +91,8 @@ function SignIn() {
         <Oauth dontDispalythisInSignIn={true} />
       </form>
       <div className="flex justify-center mt-5">
-        <p className="text-gray-600">Dont have an Account?</p>
+        <p className="text-gray-600">Don&apos;t have an account?</p>
         <Link to={"/signup"} className="ml-1">
-          {" "}
           <span className="text-blue-700 hover:underline">Sign up</span>
         </Link>
         <ToastContainer />

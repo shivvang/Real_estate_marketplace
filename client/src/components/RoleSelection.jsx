@@ -14,6 +14,7 @@ const RoleSelection = ({ handleRoleChange, selectedRole, uniqueKey }) => {
             onChange={handleRoleChange}
             checked={selectedRole === role}
             className="mr-2 accent-blue-500"
+            aria-label={role.charAt(0).toUpperCase() + role.slice(1)}
           />
           {role.charAt(0).toUpperCase() + role.slice(1)}
         </label>

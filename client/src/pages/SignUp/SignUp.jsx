@@ -9,32 +9,33 @@ import RoleSelection from "../../components/RoleSelection";
 
 function SignUp() {
   const [formData, setFormData] = useState({ role: "buyer" });
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [e.target.id]: e.target.value,
-    });
+    }));
   };
+
   const handleRoleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       role: e.target.value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = ValidateSignUpData(formData);
     if (Object.keys(errors).length > 0) {
-      // Displaying errors using toast notifications
       Object.values(errors).forEach((error) => {
         toast.error(error);
       });
       return;
     }
+
     try {
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
@@ -45,20 +46,19 @@ function SignUp() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+
       if (data.success === false) {
-        setError(data.message);
+        toast.error(data.message); // Use toast to show API error
       } else {
-        // Clearing  error state if there exist no error
-        setError("");
-        // Navigate to the sign-in page
+        toast.success("Sign up successful!"); // Success message
         navigate("/signin");
       }
     } catch (error) {
       // Check if the error is a network error
       if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setError("Network error. Please check your internet connection.");
+        toast.error("Network error. Please check your internet connection."); // Use toast to show network error
       } else {
-        setError(error.message);
+        toast.error("An error occurred: " + error.message); // Use toast to show general error
       }
     } finally {
       setLoading(false);
@@ -76,6 +76,7 @@ function SignUp() {
           placeholder="Username"
           className="border-2 border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-800 text-white placeholder-gray-400"
           id="userName"
+          value={formData.userName || ""}
           onChange={handleChange}
         />
         <input
@@ -83,6 +84,7 @@ function SignUp() {
           placeholder="Email"
           className="border-2 border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-800 text-white placeholder-gray-400"
           id="email"
+          value={formData.email || ""}
           onChange={handleChange}
         />
         <input
@@ -90,6 +92,7 @@ function SignUp() {
           placeholder="Password"
           className="border-2 border-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 bg-gray-800 text-white placeholder-gray-400"
           id="password"
+          value={formData.password || ""}
           onChange={handleChange}
         />
         <RoleSelection
@@ -113,7 +116,6 @@ function SignUp() {
         </Link>
         <ToastContainer />
       </div>
-      {error && <p className="text-red-500 mt-5">{error}</p>}
     </div>
   );
 }

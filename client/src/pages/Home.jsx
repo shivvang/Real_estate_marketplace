@@ -10,6 +10,8 @@ import BhkChoice from "../components/BhkChoice";
 import BudgetChoice from "../components/BudgetChoice ";
 import PropertiesPostedBy from "../components/PropertiesPostedBy ";
 import Loading from "../components/Loading";
+import LastVisitedProperties from "../components/LastVisitedProperties";
+import ContactLogs from "../components/ContactLogs";
 
 SwiperCore.use([Navigation]);
 function Home() {
@@ -88,8 +90,14 @@ function Home() {
             ))}
         </Swiper>
       </div>
-
-      <BudgetChoice />
+      <div className="flex flex-col md:flex-row gap-8 p-6 bg-gray-900 rounded-lg">
+        <div className="flex-1">
+          <LastVisitedProperties />
+        </div>
+        <div className="flex-1">
+          <ContactLogs />
+        </div>
+      </div>
       {/* Section for Sale Properties */}
       <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
         {sellProperty.length > 0 && (
@@ -163,6 +171,7 @@ function Home() {
       </div>
       <div className="flex flex-col md:flex-row gap-8 p-6 bg-gray-900 rounded-lg shadow-lg">
         <BhkChoice />
+        <BudgetChoice />
         <PropertiesPostedBy />
       </div>
     </div>

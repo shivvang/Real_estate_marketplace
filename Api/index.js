@@ -7,6 +7,8 @@ import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import propertyListing from "./routes/propertyListing.routes.js";
 import UserReview from "./routes/userReview.routes.js";
+import LastVisitedProperty from "./routes/LastVisitedProperty.routes.js";
+import contactRoutes from "./routes/contactRoutes.routes.js";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -28,6 +30,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/propertyListing", propertyListing);
 app.use("/api/userReview", UserReview);
+app.use("/api/LastVisitedProperty", LastVisitedProperty);
+app.use("/api/contact", contactRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

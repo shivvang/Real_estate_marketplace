@@ -42,13 +42,25 @@ function PropertyView() {
         setPropertydata(data);
         setLoading(false);
         setError(false);
+        if (currentUser && data._id) {
+          await fetch("/api/LastVisitedProperty/logVisited", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: currentUser._id,
+              propertyId: data._id,
+            }),
+          });
+        }
       } catch (error) {
         setError(true);
         setLoading(false);
       }
     };
     fetchData();
-  }, [params.propertyId]);
+  }, [params.propertyId, currentUser]);
 
   const getTransactionTypeLabel = (transactionType) => {
     switch (transactionType) {

@@ -1,14 +1,26 @@
+/* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 function ContactOwner({ propertyData }) {
+  const { currentUser } = useSelector((state) => state.user);
   const [contactOwner, setContactOwner] = useState(null);
   const [messageToOwner, setMessageToOwner] = useState("");
 
   function textingOwner(e) {
     setMessageToOwner(e.target.value);
   }
-
+  // //_id: '6698b88336e3cbd717464eb8', userName: 'adityaParmar', email: 'adityaJ@gmail.com', avatar: 'https://hips.hearstapps.com/hmg-prod/images/robert…scars-nominees-luncheon-news-photo-1708713684.jpg', role: 'seller', …}
+  // avatar: "https://hips.hearstapps.com/hmg-prod/images/robert-downey-jr-attends-the-96th-oscars-nominees-luncheon-news-photo-1708713684.jpg";
+  // createdAt: "2024-07-18T06:38:59.583Z";
+  // email: "adityaJ@gmail.com";
+  // role: "seller";
+  // updatedAt: "2024-07-18T06:38:59.583Z";
+  // userName: "adityaParmar";
+  // __v: 0;
+  // _id: "6698b88336e3cbd717464eb8";
+  console.log(contactOwner);
   useEffect(() => {
     const fetchOwner = async () => {
       try {
@@ -21,6 +33,33 @@ function ContactOwner({ propertyData }) {
     };
     fetchOwner();
   }, [propertyData.userRefs]);
+
+  const handleSendMessage = async () => {
+    try {
+      const response = await fetch("/api/contact/logContact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: currentUser._id,
+          propertyId: propertyData._id,
+          message: messageToOwner,
+          senderName: contactOwner.userName,
+          senderEmail: contactOwner.email,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log("Contact logged successfully");
+      } else {
+        console.error("Error logging contact:", result.message);
+      }
+    } catch (error) {
+      console.error("Error logging contact:", error);
+    }
+  };
 
   return (
     <>
@@ -48,6 +87,7 @@ function ContactOwner({ propertyData }) {
           <Link
             to={`mailto:${contactOwner.email}?subject=Regarding ${propertyData.propertyTitle}&body=${messageToOwner}`}
             className="bg-blue-600 text-white text-center py-3 uppercase rounded-lg hover:bg-blue-500 transition"
+            onClick={handleSendMessage}
           >
             Send Message
           </Link>

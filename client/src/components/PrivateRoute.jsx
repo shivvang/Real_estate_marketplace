@@ -6,7 +6,6 @@ import { Outlet, Navigate } from "react-router-dom";
 
 function PrivateRoute({ allowedRoles }) {
   const { currentUser } = useSelector((state) => state.user);
-
   if (!currentUser) {
     return <Navigate to="/signin" />;
   }
