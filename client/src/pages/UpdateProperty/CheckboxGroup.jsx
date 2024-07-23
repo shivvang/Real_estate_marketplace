@@ -1,18 +1,7 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 import React from "react";
-
 const CheckboxGroup = ({ label, name, options, selectedOptions, onChange }) => {
-  const handleCheckboxChange = (optionValue, isChecked) => {
-    onChange({
-      target: {
-        name: `${name}.${optionValue}`,
-        value: isChecked,
-        type: "checkbox",
-      },
-    });
-  };
-
   return (
     <div className="mb-4">
       <p className="block text-sm font-medium text-gray-300 mb-2">{label}</p>
@@ -21,12 +10,10 @@ const CheckboxGroup = ({ label, name, options, selectedOptions, onChange }) => {
           <div key={option.value} className="flex items-center gap-2">
             <input
               type="checkbox"
-              name={`${name}.${option.value}`}
+              name={`${name}.${option.value}`} // Ensure name is correctly set
               id={`${name}.${option.value}`}
-              onChange={(e) =>
-                handleCheckboxChange(option.value, e.target.checked)
-              }
-              checked={!!selectedOptions[option.value]} // Ensure checked is always defined
+              onChange={onChange}
+              checked={selectedOptions[option.value]}
               className="accent-blue-600 h-5 w-5"
               disabled={option.disabled}
             />

@@ -24,10 +24,12 @@ function UpdateProperty() {
     transactionType: "sell",
     propertyType: "residential",
     ownershipType: "ownedbyme",
+
     baths: 1,
     beds: 1,
     priceBreakUp: 0,
     maintenanceCharge: 0,
+
     carpetArea: 0,
     propertyImageUrls: [],
     propertyStatus: "readyToMoveIn",
@@ -50,6 +52,7 @@ function UpdateProperty() {
       swimmingPool: false,
       clubhouse: false,
       garden: false,
+      cctvSecturity: false,
     },
     userRefs: `${currentUser._id}`,
   });
@@ -63,8 +66,9 @@ function UpdateProperty() {
   const params = useParams();
   useEffect(() => {
     const fetchProperty = async () => {
-      const propertyID = params.propertyid;
-      const res = await fetch(`/api/propertyListing/getProperty/${propertyID}`);
+      const PropertyId = params.propertyId;
+
+      const res = await fetch(`/api/propertyListing/getProperty/${PropertyId}`);
       const data = await res.json();
 
       if (data.success === false) {
@@ -74,7 +78,39 @@ function UpdateProperty() {
       setFormData(data);
     };
     fetchProperty();
-  }, [params.propertyid]);
+  }, [params.PropertyId]);
+
+  const allOptions = [
+    { label: "Power Backup", value: "powerBackup" },
+    { label: "High speed Eleveators", value: "lift" },
+    { label: "24x7 Security", value: "security" },
+    { label: "Water Supply", value: "waterSupply" },
+    { label: "Gymnasium", value: "gymnasium" },
+    { label: "Swimming Pool", value: "swimmingPool" },
+    { label: "Clubhouse", value: "clubhouse" },
+    { label: "Children's play Area", value: "garden" },
+    { label: "CCTV Camera Security", value: "cctvSecturity" },
+  ];
+
+  const filterOptionsByPropertyType = (propertyType) => {
+    if (propertyType === "commercial") {
+      return allOptions.filter(
+        (option) =>
+          !["gymnasium", "swimmingPool", "clubhouse", "garden"].includes(
+            option.value
+          )
+      );
+    }
+    return allOptions;
+  };
+
+  const conditionalOptionsAreaDetails = [
+    ...(formData.propertyType !== "commercial"
+      ? [{ label: "Balcony", value: "balcony" }]
+      : []),
+    { label: "Furnished", value: "furnished" },
+    { label: "Parking", value: "parking" },
+  ];
 
   const handleFormSubmission = (e) => {
     const { name, value, type, checked } = e.target;
@@ -114,7 +150,7 @@ function UpdateProperty() {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
-
+  const filteredOptions = filterOptionsByPropertyType(formData.propertyType);
   const onFormSubmission = async (e) => {
     e.preventDefault();
 
@@ -129,20 +165,19 @@ function UpdateProperty() {
     }
 
     try {
+      const PropertyId = params.propertyId;
       setSubmissionLoading(true);
       setFormSubmissionError(false);
-      const res = await fetch(
-        `/api/propertyListing/update/${params.propertyid}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ formData }),
-        }
-      );
+      const res = await fetch(`/api/propertyListing/update/${PropertyId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ formData }),
+      });
 
       const data = await res.json();
+
       setSubmissionLoading(false);
 
       if (data.success === false) {
@@ -155,10 +190,25 @@ function UpdateProperty() {
       setSubmissionLoading(false);
     }
   };
+  const getPlaceholderText = () => {
+    if (formData.propertyType === "rawLand") {
+      return "Please provide a detailed description of your land, including its features, location advantages, potential uses, and any other relevant details. Please specify the size of the land in acres.";
+    }
+
+    if (formData.propertyType === "residential") {
+      return "Please specify the type of residential property (e.g., Apartment, Bungalow, Row House). Include details about any unique features not covered in the form.";
+    }
+
+    if (formData.propertyType === "commercial") {
+      return "Please specify the type of commercial property (e.g., Office Building, Retail Store, Warehouse). Include details about layout, amenities, and any other relevant features.";
+    }
+
+    return "Describe your property...";
+  };
   return (
     <main className="p-6 max-w-4xl mx-auto bg-gray-900 rounded-lg shadow-md mt-6">
       <h1 className="text-4xl font-semibold text-center text-white my-7">
-        Update Property
+        Update Your Property
       </h1>
       <form
         id="propertyForm"
@@ -178,11 +228,7 @@ function UpdateProperty() {
           <TextArea
             label="Description"
             name="description"
-            placeholder={
-              formData.propertyType === "rawLand"
-                ? "Please provide a detailed description of your land, including its features, location advantages, potential uses, and any other relevant details. Please specify the size of the land in acres."
-                : "Describe your property..."
-            }
+            placeholder={getPlaceholderText()}
             value={formData.description}
             onChange={handleFormSubmission}
           />
@@ -195,9 +241,9 @@ function UpdateProperty() {
               onChange={handleFormSubmission}
             />
             <TextInput
-              label="Landmark"
+              label="Location Advantage"
               name="landmark"
-              placeholder="Enter Landmark"
+              placeholder="Enter Location Advantage"
               value={formData.landmark}
               onChange={handleFormSubmission}
             />
@@ -270,18 +316,14 @@ function UpdateProperty() {
                 disabled: formData.propertyType === "rawLand",
               },
             ]}
-            selectedOptions={formData.priceDetails || {}}
+            selectedOptions={formData.priceDetails}
             onChange={handleFormSubmission}
           />
           {formData.propertyType !== "rawLand" && (
             <CheckboxGroup
               label="Area Details"
               name="addAreaDetails"
-              options={[
-                { label: "Balcony", value: "balcony" },
-                { label: "Furnished", value: "furnished" },
-                { label: "Parking", value: "parking" },
-              ]}
+              options={conditionalOptionsAreaDetails}
               selectedOptions={formData.addAreaDetails}
               onChange={handleFormSubmission}
             />
@@ -290,41 +332,33 @@ function UpdateProperty() {
             <CheckboxGroup
               label="Amenities"
               name="amenities"
-              options={[
-                { label: "Power Backup", value: "powerBackup" },
-                { label: "Lift", value: "lift" },
-                { label: "Security", value: "security" },
-                { label: "Water Supply", value: "waterSupply" },
-                { label: "Gymnasium", value: "gymnasium" },
-                { label: "Swimming Pool", value: "swimmingPool" },
-                { label: "Clubhouse", value: "clubhouse" },
-                { label: "Garden", value: "garden" },
-              ]}
+              options={filteredOptions}
               selectedOptions={formData.amenities}
               onChange={handleFormSubmission}
             />
           )}
-          {formData.propertyType !== "rawLand" && (
-            <div className="flex gap-4">
-              <NumberInput
-                label="Number of Baths"
-                name="baths"
-                value={formData.baths}
-                onChange={handleFormSubmission}
-                min="1"
-                max="12"
-              />
-              <NumberInput
-                label="Number of Beds"
-                name="beds"
-                value={formData.beds}
-                onChange={handleFormSubmission}
-                min="1"
-                max="12"
-              />
-            </div>
-          )}
-          {formData.priceDetails && formData.priceDetails.additionalCharges && (
+          {formData.propertyType !== "rawLand" &&
+            formData.propertyType !== "commercial" && (
+              <div className="flex gap-4">
+                <NumberInput
+                  label="Number of Baths"
+                  name="baths"
+                  value={formData.baths}
+                  onChange={handleFormSubmission}
+                  min="1"
+                  max="12"
+                />
+                <NumberInput
+                  label="Number of Beds"
+                  name="beds"
+                  value={formData.beds}
+                  onChange={handleFormSubmission}
+                  min="1"
+                  max="12"
+                />
+              </div>
+            )}
+          {formData.priceDetails.additionalCharges && (
             <NumberInput
               label={`Maintenance Charge ${
                 formData.transactionType === "rent" ||
@@ -339,7 +373,7 @@ function UpdateProperty() {
             />
           )}
           <NumberInput
-            label={`Price Break-Up ${
+            label={`Starting Price  ${
               formData.transactionType === "rent" ||
               formData.transactionType === "pg"
                 ? "/Month"
@@ -366,15 +400,17 @@ function UpdateProperty() {
             />
           ) : null}
 
-          {formData.propertyType !== "rawLand" && (
-            <NumberInput
-              label="Carpet Area (in sq ft)"
-              name="carpetArea"
-              value={formData.carpetArea}
-              onChange={handleFormSubmission}
-              min="0"
-            />
-          )}
+          <NumberInput
+            label={`${
+              formData.propertyType === "rawLand"
+                ? "Land Area (in sq ft)"
+                : "Carpet Area (in sq ft)"
+            }`}
+            name="carpetArea"
+            value={formData.carpetArea}
+            onChange={handleFormSubmission}
+            min="0"
+          />
         </div>
       </form>
       <div className="flex flex-col items-center gap-6 p-6 bg-gray-900 rounded-lg shadow-lg">
@@ -400,7 +436,7 @@ function UpdateProperty() {
           className="mt-6 p-4 w-full sm:w-auto text-white bg-blue-600 rounded-lg uppercase hover:opacity-90 transition-opacity duration-200 ease-in-out"
           onClick={() => formRef.current.requestSubmit()}
         >
-          {submissionLoading ? "Update Publishing..." : "Update Property Post"}
+          {submissionLoading ? "update Publishing..." : "Update Property Post"}
         </button>
         <ToastContainer />
         {formsubmissionError && (

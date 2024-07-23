@@ -104,7 +104,6 @@ export const updateProperties = async (req, res, next) => {
     errors.priceBreakUp = "Price break-up must be greater than 0.";
   if (carpetArea <= 0)
     errors.carpetArea = "Carpet area must be greater than 0.";
-
   if (!propertyImageUrls || propertyImageUrls.length === 0)
     errors.propertyImageUrls = "At least one property image is required.";
   if (!userRefs) errors.userRefs = "User reference is required.";
@@ -117,16 +116,11 @@ export const updateProperties = async (req, res, next) => {
   const propertyalreadyexisting = await PropertyListing.findById(req.params.id);
 
   if (!propertyalreadyexisting) {
-    return next(errorHandler(404, "There does not exist a property like this"));
+    return next(errorHandler(404, "This does not exist "));
   }
 
   if (req.user.id !== propertyalreadyexisting.userRefs) {
-    return next(
-      errorHandler(
-        401,
-        "Cannot update this because you are not the one who made this"
-      )
-    );
+    return next(errorHandler(401, "Cannot update this"));
   }
 
   try {

@@ -2,7 +2,7 @@
 import React from "react";
 import { FaRupeeSign } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-//sort=priceBreakUp&order=desc
+
 const BudgetChoice = () => {
   const navigate = useNavigate();
   const handleBudgetClick = (value) => {
