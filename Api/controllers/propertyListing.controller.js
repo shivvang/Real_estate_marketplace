@@ -240,10 +240,10 @@ export const getPropertiesData = async (req, res, next) => {
 
     let price = extractPriceFromSearchTerm(searchTerm);
 
-    if (price !== null) {
+    if (price !== null && price !== undefined) {
       match.priceBreakUp = { $gte: price };
     }
-    console.log("is this setting up or not", match.priceBreakUp);
+
     const cleanedSearchTerm = removePriceComponentFromSearchTerm(searchTerm);
 
     const normalizedSearchTerm = normalizeSearchTerm(cleanedSearchTerm);
