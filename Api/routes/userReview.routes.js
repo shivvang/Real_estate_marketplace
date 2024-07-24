@@ -3,7 +3,6 @@ import {
   getUserReview,
   postUserReview,
 } from "../controllers/userReview.controller.js";
-//import { validateReview } from "../middleware/validateReview.js";
 
 const router = Router();
 

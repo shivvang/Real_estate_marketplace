@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+// eslint-disable-next-line no-unused-vars
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { app } from "../firebase";
 import {
   updatingUserbegin,
@@ -13,49 +14,35 @@ import {
   signOutFailed,
   signOutSuccess,
 } from "../redux/user/userSlice";
-import { useDispatch } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-function Profile() {
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const FileRef = useRef(null);
-  const [file, setFile] = useState(undefined);
+  const [file, setFile] = useState(null);
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const [fileError, setFileError] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ ...currentUser });
   const dispatch = useDispatch();
 
-  //firebase storage
-  //allow read;
-  //allow write: if
-  //request.resource.size<100 *1024 * 1024 &&
-  //request.resource.contentType.matches('image/.*')
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
     }
   }, [file]);
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = useCallback((file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
-    //  StorageReference where data should be uploaded.
     const storageRef = ref(storage, fileName);
-    //Uploads data to this object's location. The upload can be paused and resumed, and exposes progress updates.
     const uploadTask = uploadBytesResumable(storageRef, file);
-
-    //fire base documentation
-
-    //   uploadTask.on('state_changed',
-    // (snapshot) => {
-    //   // Observe state change events such as progress, pause, and resume
-    //   // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-    //   const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    //   console.log('Upload is ' + progress + '% done');
 
     uploadTask.on(
       "state_changed",
@@ -69,20 +56,23 @@ function Profile() {
         console.log(error);
       },
       () => {
-        //returns the download URL for the given StorageReference.
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log(downloadURL);
-          setFormData({ ...formData, avatar: downloadURL });
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            avatar: downloadURL,
+          }));
         });
       }
     );
-  };
+  }, []);
 
-  const handleInputChanges = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
+  const handleInputChanges = useCallback(
+    (e) => {
+      setFormData({ ...formData, [e.target.id]: e.target.value });
+    },
+    [formData]
+  );
 
-  let succesMessage = false;
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -99,12 +89,14 @@ function Profile() {
 
       if (data.success === false) {
         dispatch(updateUserFailed(data.message));
+        toast.error(data.message);
         return;
       }
       dispatch(updateUserSuccess(data));
-      succesMessage = true;
+      toast.success("User details updated successfully");
     } catch (error) {
       dispatch(updateUserFailed(error.message));
+      toast.error(error.message);
     }
   };
 
@@ -117,15 +109,17 @@ function Profile() {
       });
 
       const data = await res.json();
-      console.log("delete stuff", data);
 
       if (data.success === false) {
         dispatch(deleteUserFailed(data.message));
+        toast.error(data.message);
         return;
       }
       dispatch(deleteUserSuccess(data));
+      toast.success("Account deleted successfully");
     } catch (error) {
       dispatch(deleteUserFailed(error.message));
+      toast.error(error.message);
     }
   };
 
@@ -136,15 +130,20 @@ function Profile() {
       const data = await res.json();
       if (data.success === false) {
         dispatch(signOutFailed(data.message));
+        toast.error(data.message);
         return;
       }
       dispatch(signOutSuccess(data));
+      toast.success("Signed out successfully");
     } catch (error) {
       dispatch(signOutFailed(error.message));
+      toast.error(error.message);
     }
   };
+
   return (
     <div className="bg-gray-800 p-8 max-w-2xl mx-auto shadow-xl rounded-lg mt-14">
+      <ToastContainer />
       <h1 className="text-4xl font-semibold text-center text-white mb-8">
         User Profile
       </h1>
@@ -232,9 +231,7 @@ function Profile() {
         </span>
       </div>
       {error && <p className="text-red-700 mt-5 text-center">{error}</p>}
-      {succesMessage && (
-        <p className="text-green-700 mt-5 text-center">User details updated</p>
-      )}
+
       {currentUser.role === "seller" && (
         <Link
           to="/PropertyList"
@@ -245,6 +242,6 @@ function Profile() {
       )}
     </div>
   );
-}
+};
 
 export default Profile;

@@ -1,22 +1,14 @@
 import { FaSearch } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 // eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState } from "react";
-function NavBar() {
-  const { currentUser } = useSelector((state) => state.user);
+import React, { useEffect, useState, useMemo } from "react";
 
+const NavBar = () => {
+  const { currentUser } = useSelector((state) => state.user);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const handleFormSubmission = (e) => {
-    e.preventDefault();
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set("searchTerm", searchTerm);
-    const searchQuery = urlParams.toString();
-    navigate(`/search?${searchQuery}`);
-  };
-
-  //used to keep the search term in sync with the URL query parameter.
+  const location = useLocation();
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get("searchTerm");
@@ -25,19 +17,22 @@ function NavBar() {
     }
   }, [location.search]);
 
-  if (!currentUser) {
-    return null; // Render nothing if the user is not authenticated
-  }
-
-  const getRoleText = () => {
-    if (currentUser.role === "tenant") {
-      return "Looking for rental properties?";
-    } else if (currentUser.role === "buyer") {
-      return "Looking to buy?";
-    } else {
-      return "";
-    }
+  const handleFormSubmission = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("searchTerm", searchTerm);
+    navigate(`/search?${urlParams.toString()}`);
   };
+
+  const getRoleText = useMemo(() => {
+    if (currentUser.role === "tenant") return "Looking for rental properties?";
+    if (currentUser.role === "buyer") return "Looking to buy?";
+    return "";
+  }, [currentUser.role]);
+
+  if (!currentUser) {
+    return null;
+  }
 
   return (
     <header className="bg-gray-900 text-white">
@@ -55,7 +50,7 @@ function NavBar() {
         >
           <input
             type="text"
-            placeholder="Search by location, title, or description"
+            placeholder="Search by location, title, or price"
             className="flex-grow px-3 py-1 text-xs sm:text-sm md:text-base lg:text-lg rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -78,16 +73,16 @@ function NavBar() {
           )}
           <li className="text-xs sm:text-sm md:text-base lg:text-lg">
             <Link to="/search" className="flex items-center">
-              <span className="ml-2 whitespace-nowrap">{getRoleText()}</span>
+              <span className="ml-2 whitespace-nowrap">{getRoleText}</span>
             </Link>
           </li>
           <li className="text-xs sm:text-sm md:text-base lg:text-lg">
             <Link to="/profile" className="flex items-center">
-              {currentUser ? (
+              {currentUser.avatar ? (
                 <img
                   className="rounded-full h-10 w-10 sm:h-8 sm:w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 object-cover border-2 border-gray-300"
                   src={currentUser.avatar}
-                  alt="profile"
+                  alt={`${currentUser.userName}'s avatar`}
                 />
               ) : (
                 <span className="hover:text-blue-500 transition duration-300 ease-in-out">
@@ -100,6 +95,6 @@ function NavBar() {
       </div>
     </header>
   );
-}
+};
 
 export default NavBar;

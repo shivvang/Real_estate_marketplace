@@ -1,70 +1,18 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PropertyCard from "../../components/PropertyCard";
 import BudgetSlider from "./BudgetSlider";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchFilters } from "../../redux/searchFilters/searchFiltersSlice";
 
-const initialState = {
-  searchFilters: {
-    searchTerm: "",
-    propertyType: "all",
-    transactionType: "all",
-    sort: "createdAt",
-    order: "desc",
-    furnished: false,
-    balcony: false,
-    parking: false,
-    powerBackup: false,
-    lift: false,
-    security: false,
-    waterSupply: false,
-    gymnasium: false,
-    swimmingPool: false,
-    clubhouse: false,
-    garden: false,
-    cctvSecurity: false,
-    minPrice: 0,
-    maxPrice: 1000000000,
-  },
-  searchResults: [],
-  loading: false,
-};
-
-const actionTypes = {
-  SET_SEARCH_FILTERS: "SET_SEARCH_FILTERS",
-  SET_SEARCH_RESULTS: "SET_SEARCH_RESULTS",
-  SET_LOADING: "SET_LOADING",
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case actionTypes.SET_SEARCH_FILTERS:
-      return {
-        ...state,
-        searchFilters: {
-          ...state.searchFilters,
-          ...action.payload,
-        },
-      };
-    case actionTypes.SET_SEARCH_RESULTS:
-      return {
-        ...state,
-        searchResults: action.payload,
-      };
-    case actionTypes.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload,
-      };
-    default:
-      return state;
-  }
-};
-
-function SearchPage() {
+const SearchPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const dispatch = useDispatch();
+  const searchFilters = useSelector((state) => state.searchFilters);
+  const [loading, setLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -126,15 +74,12 @@ function SearchPage() {
         1000000000,
     };
 
-    dispatch({
-      type: actionTypes.SET_SEARCH_FILTERS,
-      payload: urlFilters,
-    });
-  }, [location.search]);
+    dispatch(setSearchFilters(urlFilters));
+  }, [location.search, dispatch]);
 
   useEffect(() => {
-    localStorage.setItem("searchFilters", JSON.stringify(state.searchFilters));
-  }, [state.searchFilters]);
+    localStorage.setItem("searchFilters", JSON.stringify(searchFilters));
+  }, [searchFilters]);
 
   const handlingChangesInInput = (e) => {
     const { id, value, type, checked } = e.target;
@@ -148,32 +93,48 @@ function SearchPage() {
       newValue = value;
     }
 
-    dispatch({
-      type: actionTypes.SET_SEARCH_FILTERS,
-      payload: {
+    dispatch(
+      setSearchFilters({
         [id]: newValue,
         ...(type === "radio" && { [e.target.name]: id }),
-      },
-    });
+      })
+    );
 
     if (id === "sort_order") {
       const [sort, order] = value.split("_");
-      dispatch({
-        type: actionTypes.SET_SEARCH_FILTERS,
-        payload: { sort: sort || "createdAt", order: order || "desc" },
-      });
+      dispatch(
+        setSearchFilters({ sort: sort || "createdAt", order: order || "desc" })
+      );
     }
   };
 
   const handleFormSubmission = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams();
-    Object.keys(state.searchFilters).forEach((key) => {
-      urlParams.set(key, state.searchFilters[key]);
+    Object.keys(searchFilters).forEach((key) => {
+      urlParams.set(key, searchFilters[key]);
     });
 
     navigate(`/search?${urlParams.toString()}`);
   };
+
+  useEffect(() => {
+    // Fetch data whenever search filters change
+    const fetchData = async () => {
+      setLoading(true);
+
+      const urlParams = new URLSearchParams(searchFilters);
+      const response = await fetch(
+        `/api/propertyListing/get?${urlParams.toString()}`
+      );
+      const data = await response.json();
+
+      setSearchResults(data);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [searchFilters]);
 
   const filteredAmenities = [
     { label: "Power Backup", value: "powerBackup" },
@@ -181,7 +142,7 @@ function SearchPage() {
     { label: "24x7 Security", value: "security" },
     { label: "Water Supply", value: "waterSupply" },
     { label: "CCTV Camera Security", value: "cctvSecurity" },
-    ...(state.searchFilters.propertyType !== "commercial"
+    ...(searchFilters.propertyType !== "commercial"
       ? [
           { label: "Gymnasium", value: "gymnasium" },
           { label: "Swimming Pool", value: "swimmingPool" },
@@ -199,28 +160,10 @@ function SearchPage() {
     (detail) =>
       !(
         detail.value === "balcony" &&
-        state.searchFilters.propertyType === "commercial"
+        searchFilters.propertyType === "commercial"
       )
   );
-
-  useEffect(() => {
-    // Fetch data whenever search filters change
-    const fetchData = async () => {
-      dispatch({ type: actionTypes.SET_LOADING, payload: true });
-
-      const urlParams = new URLSearchParams(state.searchFilters);
-      const response = await fetch(
-        `/api/propertyListing/get?${urlParams.toString()}`
-      );
-      const data = await response.json();
-
-      dispatch({ type: actionTypes.SET_SEARCH_RESULTS, payload: data });
-      dispatch({ type: actionTypes.SET_LOADING, payload: false });
-    };
-
-    fetchData();
-  }, [state.searchFilters]);
-  console.log("exploration", JSON.parse(localStorage.getItem("searchFilters")));
+  console.log("search filters", searchFilters);
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen bg-gray-900 text-white w-full md:w-1/2 overflow-y-auto">
@@ -234,7 +177,7 @@ function SearchPage() {
               placeholder="Search by location, price  BHK or property type"
               id="searchTerm"
               className="border rounded-lg p-3 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={state.searchFilters.searchTerm}
+              value={searchFilters.searchTerm}
               onChange={handlingChangesInInput}
             />
           </div>
@@ -249,7 +192,7 @@ function SearchPage() {
                   id="all"
                   name="propertyType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.propertyType === "all"}
+                  checked={searchFilters.propertyType === "all"}
                   onChange={handlingChangesInInput}
                 />
                 All
@@ -260,7 +203,7 @@ function SearchPage() {
                   id="residential"
                   name="propertyType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.propertyType === "residential"}
+                  checked={searchFilters.propertyType === "residential"}
                   onChange={handlingChangesInInput}
                 />
                 Residential
@@ -271,7 +214,7 @@ function SearchPage() {
                   id="commercial"
                   name="propertyType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.propertyType === "commercial"}
+                  checked={searchFilters.propertyType === "commercial"}
                   onChange={handlingChangesInInput}
                 />
                 Commercial
@@ -282,7 +225,7 @@ function SearchPage() {
                   id="rawLand"
                   name="propertyType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.propertyType === "rawland"}
+                  checked={searchFilters.propertyType === "rawland"}
                   onChange={handlingChangesInInput}
                 />
                 Raw Land
@@ -300,7 +243,7 @@ function SearchPage() {
                   id="all"
                   name="transactionType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.transactionType === "all"}
+                  checked={searchFilters.transactionType === "all"}
                   onChange={handlingChangesInInput}
                 />
                 All
@@ -311,7 +254,7 @@ function SearchPage() {
                   id="sell"
                   name="transactionType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.transactionType === "sell"}
+                  checked={searchFilters.transactionType === "sell"}
                   onChange={handlingChangesInInput}
                 />
                 Buy
@@ -322,7 +265,7 @@ function SearchPage() {
                   id="rent"
                   name="transactionType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.transactionType === "rent"}
+                  checked={searchFilters.transactionType === "rent"}
                   onChange={handlingChangesInInput}
                 />
                 Rent
@@ -333,7 +276,7 @@ function SearchPage() {
                   id="pg"
                   name="transactionType"
                   className="text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  checked={state.searchFilters.transactionType === "pg"}
+                  checked={searchFilters.transactionType === "pg"}
                   onChange={handlingChangesInInput}
                 />
                 PG
@@ -342,17 +285,14 @@ function SearchPage() {
           </div>
 
           <BudgetSlider
-            minPrice={state.searchFilters.minPrice}
-            maxPrice={state.searchFilters.maxPrice}
+            minPrice={searchFilters.minPrice}
+            maxPrice={searchFilters.maxPrice}
             setSearchFilters={(min, max) =>
-              dispatch({
-                type: actionTypes.SET_SEARCH_FILTERS,
-                payload: { minPrice: min, maxPrice: max },
-              })
+              dispatch(setSearchFilters({ minPrice: min, maxPrice: max }))
             }
           />
 
-          {state.searchFilters.propertyType !== "rawLand" && (
+          {searchFilters.propertyType !== "rawLand" && (
             <>
               <label className="font-semibold text-gray-300">
                 Area Details:
@@ -366,7 +306,7 @@ function SearchPage() {
                     <input
                       type="checkbox"
                       id={detail.value}
-                      checked={state.searchFilters[detail.value]}
+                      checked={searchFilters[detail.value]}
                       onChange={handlingChangesInInput}
                       className="text-blue-600 focus:ring-2 focus:ring-blue-500"
                     />
@@ -387,7 +327,7 @@ function SearchPage() {
                     <input
                       type="checkbox"
                       id={amenity.value}
-                      checked={state.searchFilters[amenity.value]}
+                      checked={searchFilters[amenity.value]}
                       onChange={handlingChangesInInput}
                       className="text-blue-600 focus:ring-2 focus:ring-blue-500"
                     />
@@ -403,7 +343,7 @@ function SearchPage() {
             <select
               id="sort_order"
               className="border rounded-lg p-3 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={`${state.searchFilters.sort}_${state.searchFilters.order}`}
+              value={`${searchFilters.sort}_${searchFilters.order}`}
               onChange={handlingChangesInInput}
             >
               <option value="createdAt_desc">Latest</option>
@@ -424,10 +364,10 @@ function SearchPage() {
 
       <div className="p-7 md:min-h-screen w-full md:w-1/2 overflow-y-auto bg-gray-900 text-white">
         <h1 className="text-2xl mb-5">Search Results</h1>
-        {state.loading ? (
+        {loading ? (
           <div className="text-center">Loading...</div>
-        ) : state.searchResults.length > 0 ? (
-          state.searchResults.map((property) => (
+        ) : searchResults.length > 0 ? (
+          searchResults.map((property) => (
             <div className="mb-4" key={property._id}>
               <PropertyCard propertyData={property} />
             </div>
@@ -438,6 +378,6 @@ function SearchPage() {
       </div>
     </div>
   );
-}
+};
 
 export default SearchPage;

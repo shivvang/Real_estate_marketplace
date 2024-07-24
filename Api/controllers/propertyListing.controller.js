@@ -151,6 +151,7 @@ export const getProperty = async (req, res, next) => {
 const normalizeSearchTerm = (term) => {
   const spacedTerm = term.trim().replace(/\s+/g, " ").toLowerCase();
   const termWithSpaces = spacedTerm.replace(/(\d+)([a-zA-Z]+)/g, "$1 $2");
+
   return termWithSpaces;
 };
 
@@ -164,6 +165,7 @@ const parsePriceInput = (input) => {
   } else if (input.toLowerCase().includes("lakh")) {
     number *= 100000;
   }
+
   return isNaN(number) ? null : number;
 };
 
@@ -172,9 +174,10 @@ const extractPriceFromSearchTerm = (searchTerm) => {
   const pricePattern = /(\d+(\.\d+)?\s*(cr|lakh))/i;
   const match = searchTerm.match(pricePattern);
   if (match) {
-    return parsePriceInput(match[0]);
+    const extractedPrice = parsePriceInput(match[0]);
+
+    return extractedPrice;
   }
-  return null;
 };
 
 //o remove any price-related components from a search term string
@@ -231,15 +234,18 @@ export const getPropertiesData = async (req, res, next) => {
     }
 
     const searchTerm = req.query.searchTerm || "";
+
     const sort = req.query.sort || "createdAt";
     const order = req.query.order === "asc" ? 1 : -1;
 
     let price = extractPriceFromSearchTerm(searchTerm);
+
     if (price !== null) {
       match.priceBreakUp = { $gte: price };
     }
-
+    console.log("is this setting up or not", match.priceBreakUp);
     const cleanedSearchTerm = removePriceComponentFromSearchTerm(searchTerm);
+
     const normalizedSearchTerm = normalizeSearchTerm(cleanedSearchTerm);
 
     if (normalizedSearchTerm) {
@@ -256,10 +262,10 @@ export const getPropertiesData = async (req, res, next) => {
       const min = parsePriceInput(minPrice);
       const max = parsePriceInput(maxPrice);
 
-      if (!match.priceBreakUp) match.priceBreakUp = {};
+      console.log("fein", match.priceBreakUp);
 
-      if (min !== null) match.priceBreakUp.$gte = min;
-      if (max !== null) match.priceBreakUp.$lte = max;
+      if (min !== null && price === null) match.priceBreakUp.$gte = min;
+      if (max !== null && price === null) match.priceBreakUp.$lte = max;
     }
     //search term containing the price component is being used to match fields like propertyTitle, description, and location,
     const pipeline = [
@@ -269,7 +275,7 @@ export const getPropertiesData = async (req, res, next) => {
       { $limit: limit },
     ];
 
-    //console.log("Query match object:", JSON.stringify(match, null, 2));
+    console.log("Query match object:", JSON.stringify(match, null, 2));
 
     const dataReceived = await PropertyListing.aggregate(pipeline);
 

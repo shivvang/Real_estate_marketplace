@@ -1,57 +1,56 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function PropertyList() {
-  const [showUserPropertyError, setShowUserPropertyError] = useState(false);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useSelector((state) => state.user);
-  const [showuserproperties, setShowuserproperties] = useState([]);
+  const [userProperties, setUserProperties] = useState([]);
 
   useEffect(() => {
     const fetchUserProperty = async () => {
-      setShowUserPropertyError(false);
       setLoading(true);
       try {
         const res = await fetch(`/api/users/postedProperty/${currentUser._id}`);
+        if (!res.ok) throw new Error("Failed to fetch properties");
         const data = await res.json();
-        if (!data) {
-          setShowUserPropertyError(true);
-          return;
-        }
-        setShowuserproperties(data);
+        setUserProperties(data);
       } catch (error) {
-        setShowUserPropertyError(true);
+        toast.error("Error occurred while fetching user-created property.");
       } finally {
         setLoading(false);
       }
     };
+
     if (currentUser && currentUser._id) {
       fetchUserProperty();
     }
   }, [currentUser]);
 
-  const handlePropetyDeletion = async (propertyID) => {
+  const handlePropertyDeletion = async (propertyID) => {
     try {
       const res = await fetch(`/api/propertyListing/delete/${propertyID}`, {
         method: "DELETE",
       });
       const data = await res.json();
-
-      if (data.success === false) {
-        console.log(data.message);
-        return;
+      if (!res.ok || data.success === false) {
+        throw new Error(data.message || "Failed to delete property");
       }
-      setShowuserproperties((prev) =>
-        prev.filter((properties) => properties._id !== propertyID)
+      setUserProperties((prev) =>
+        prev.filter((property) => property._id !== propertyID)
       );
+      toast.success("Property deleted successfully.");
     } catch (error) {
-      console.log(error.name);
+      toast.error("Error occurred while deleting the property.");
     }
   };
 
   return (
     <div className="p-5 max-w-7xl mx-auto mt-10 bg-gray-800 rounded-lg shadow-md">
+      <ToastContainer />
       <h1 className="text-3xl font-semibold text-center mb-8 text-blue-500">
         Your Properties Ads
       </h1>
@@ -60,14 +59,8 @@ function PropertyList() {
         <div className="text-center text-blue-500">Loading...</div>
       ) : (
         <>
-          {showUserPropertyError && (
-            <p className="text-red-600 text-center mb-6">
-              Error occurred while fetching user-created property.
-            </p>
-          )}
-
-          {showuserproperties && showuserproperties.length > 0 ? (
-            showuserproperties.map((property) => (
+          {userProperties.length > 0 ? (
+            userProperties.map((property) => (
               <div
                 key={property._id}
                 className="border border-gray-700 p-5 rounded-lg mb-6 bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300"
@@ -103,7 +96,7 @@ function PropertyList() {
                         onClick={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
-                          handlePropetyDeletion(property._id);
+                          handlePropertyDeletion(property._id);
                         }}
                         className="text-red-500 uppercase hover:underline mb-2"
                       >

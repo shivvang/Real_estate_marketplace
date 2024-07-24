@@ -1,47 +1,31 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { format } from "date-fns";
 
-const UserReviewList = ({ propertyId }) => {
-  const [reviews, setReviews] = useState([]);
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await fetch(`/api/userReview/getReview/${propertyId}`);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setReviews(data.comments);
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-      }
-    };
-
-    fetchReviews();
-  }, [propertyId]);
-  console.log("humka dekhna padega", reviews);
-
+const UserReviewList = ({ reviews }) => {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg mt-6">
-      <h2 className="text-2xl font-semibold text-blue-400 mb-4">
-        User Reviews
-      </h2>
-      {reviews &&
-        reviews.map((review) => (
-          <div key={review._id} className="border-b border-gray-700 py-3">
-            <p className="text-white">{review.commentText}</p>
-            <p className="text-gray-500 text-sm">
-              Reviewed by: {review.userId.userName}
-            </p>
-            <p className="text-gray-400 text-xs">
-              {new Date(review.timestamp).toLocaleString()}
-            </p>
-          </div>
-        ))}
+    <div className="mt-6 bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-semibold text-blue-400 mb-4">Reviews</h2>
+      {reviews.length === 0 ? (
+        <p className="text-gray-400">No reviews yet</p>
+      ) : (
+        <ul className="space-y-4">
+          {reviews.map((review) => (
+            <li key={review._id} className="p-4 bg-gray-900 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-semibold text-white">
+                  {review.userId.userName}
+                </span>
+                <span className="text-gray-500 text-sm">
+                  {format(new Date(review.timestamp), "PPP p")}
+                </span>
+              </div>
+              <p className="text-gray-300">{review.commentText}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
