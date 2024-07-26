@@ -9,6 +9,9 @@ import propertyListing from "./routes/propertyListing.routes.js";
 import UserReview from "./routes/userReview.routes.js";
 import LastVisitedProperty from "./routes/LastVisitedProperty.routes.js";
 import contactRoutes from "./routes/contactRoutes.routes.js";
+import path from "path";
+
+const __dirname = path.resolve();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -32,6 +35,12 @@ app.use("/api/propertyListing", propertyListing);
 app.use("/api/userReview", UserReview);
 app.use("/api/LastVisitedProperty", LastVisitedProperty);
 app.use("/api/contact", contactRoutes);
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
+
+app.get("*", (req, res) => {
+  res.send(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
