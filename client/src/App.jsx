@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
-import PrivateRoute from "./components/PrivateRoute";
 import Loading from "./components/Loading";
+import { useSelector } from "react-redux";
 
 // Lazy load components
 const Home = lazy(() => import("./pages/Home"));
@@ -15,15 +15,20 @@ const PostProperty = lazy(() => import("./pages/PostProperty/PostProperty"));
 const UpdateProperty = lazy(() =>
   import("./pages/UpdateProperty/UpdateProperty")
 );
+const PrivateRoute = lazy(() => import("./components/PrivateRoute"));
 const SignIn = lazy(() => import("./pages/SignIn/SignIn"));
 const SearchPage = lazy(() => import("./pages/SearchPage/SearchPage"));
 
 function App() {
+  const { currentUser } = useSelector((state) => state.user);
   return (
     <BrowserRouter>
       <NavBar />
       <Suspense fallback={<Loading />}>
         <Routes>
+          {!currentUser && (
+            <Route path="/" element={<Navigate to="/signin" />} />
+          )}
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />

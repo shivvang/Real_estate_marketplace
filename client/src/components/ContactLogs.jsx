@@ -11,7 +11,7 @@ function ContactLogs() {
   useEffect(() => {
     const fetchContactLogs = async () => {
       try {
-        const res = await fetch(`/api/contact/getContacts/${currentUser._id}`);
+        const res = await fetch(`/api/contact/getContacts/${currentUser?._id}`);
         const data = await res.json();
         if (data.success) {
           setContactLogs(data.contactLogs);
@@ -26,7 +26,7 @@ function ContactLogs() {
     };
 
     fetchContactLogs();
-  }, [currentUser._id]);
+  }, [currentUser?._id]);
 
   return (
     <div className="p-6 bg-gray-900 rounded-lg shadow-md">
@@ -39,7 +39,7 @@ function ContactLogs() {
       <ul>
         {contactLogs.map((log) => (
           <li
-            key={log._id}
+            key={log?._id}
             className="p-4 bg-gray-800 rounded-lg mb-4 shadow-md"
           >
             <div className="flex flex-col">

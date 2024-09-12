@@ -25,10 +25,10 @@ const NavBar = () => {
   };
 
   const getRoleText = useMemo(() => {
-    if (currentUser.role === "tenant") return "Looking for rental properties?";
-    if (currentUser.role === "buyer") return "Looking to buy?";
+    if (currentUser?.role === "tenant") return "Looking for rental properties?";
+    if (currentUser?.role === "buyer") return "Looking to buy?";
     return "";
-  }, [currentUser.role]);
+  }, [currentUser?.role]);
 
   if (!currentUser) {
     return null;

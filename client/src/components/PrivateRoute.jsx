@@ -6,14 +6,18 @@ import { Outlet, Navigate } from "react-router-dom";
 
 function PrivateRoute({ allowedRoles }) {
   const { currentUser } = useSelector((state) => state.user);
+
+  // Redirect to /signin if the user is not authenticated
   if (!currentUser) {
     return <Navigate to="/signin" />;
   }
 
+  // Redirect to home if the user doesn't have the allowed role
   if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     return <Navigate to="/" />;
   }
-  //outlet renders children rout if any exist
+
+  // Render child routes if everything is fine
   return <Outlet />;
 }
 
