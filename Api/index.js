@@ -13,6 +13,9 @@ import path from "path";
 
 const __dirname = path.resolve();
 const app = express();
+
+// Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, "/client/dist")));
 app.use(express.json());
 app.use(cookieParser());
 connectDb()
@@ -36,8 +39,7 @@ app.use("/api/userReview", UserReview);
 app.use("/api/LastVisitedProperty", LastVisitedProperty);
 app.use("/api/contact", contactRoutes);
 
-app.use(express.static(path.join(__dirname, "/client/dist")));
-
+// Serve the main HTML file on every other route for client-side routing
 app.get("*", (req, res) => {
   res.send(path.join(__dirname, "client", "dist", "index.html"));
 });

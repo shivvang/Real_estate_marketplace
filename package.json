@@ -4,12 +4,10 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node /opt/render/project/src/api/index.js",
-    "dev": "nodemon api/index.js",
-    "build": "npm install && npm install --prefix client && npm run build --prefix client"
-  },
+ "scripts": {
+  "start": "node api/index.js",                
+  "dev": "nodemon api/index.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
